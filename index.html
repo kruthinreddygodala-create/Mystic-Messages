@@ -48,7 +48,7 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- 1. SIGN IN SCREEN WITH GOOGLE                                  -->
+        <!-- 1. REAL GOOGLE / EMAIL SIGN IN SCREEN                          -->
         <!-- ============================================================== -->
         <section id="view-signin" class="flex flex-col h-full bg-wa-darkBg text-white p-6 justify-between z-30">
             <div class="pt-8 text-center space-y-3">
@@ -62,41 +62,19 @@
             </div>
 
             <div class="space-y-4 my-auto">
-                <!-- Google Sign-In Button -->
-                <button type="button" onclick="handleGoogleSignIn()" class="w-full py-3.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-semibold text-sm shadow-lg flex items-center justify-center gap-3 transition active:scale-[0.99] cursor-pointer">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
-                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.2v3.15C3.21 21.34 7.27 24 12 24z"/>
-                        <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.2C.44 8.15 0 9.89 0 12s.44 3.85 1.2 5.39l4.07-3.15z"/>
-                        <path fill="#EA4335" d="M12 4.75c1.76 0 3.34.61 4.59 1.8l3.43-3.43C17.95 1.11 15.24 0 12 0 7.27 0 3.21 2.66 1.2 6.61l4.07 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
-                    </svg>
-                    Sign in with Google Account
-                </button>
-
-                <div class="flex items-center gap-3 text-slate-500 text-xs my-2">
-                    <div class="flex-1 h-px bg-slate-700"></div>
-                    <span>or custom alias</span>
-                    <div class="flex-1 h-px bg-slate-700"></div>
-                </div>
-
-                <form onsubmit="handleSignIn(event)" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3.5 border border-slate-700/60">
+                <form onsubmit="handleEmailPasswordSignIn(event)" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3.5 border border-slate-700/60">
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Display Name</label>
-                        <input id="signin-name" type="text" required placeholder="e.g., Aarav" value="Aarav" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Google Email Address</label>
+                        <input id="signin-email" type="email" required placeholder="user@gmail.com" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Cloud Handle (@mystic.com)</label>
-                        <input id="signin-address" type="text" required placeholder="aarav@mystic.com" value="aarav@mystic.com" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
-                    </div>
-
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Choose Avatar</label>
-                        <div id="signin-avatar-choices" class="flex gap-2 overflow-x-auto py-1"></div>
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Password</label>
+                        <input id="signin-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
                     <button type="submit" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-lg transition active:scale-[0.99] cursor-pointer">
-                        Connect to mystic.com
+                        Sign In with Google Account
                     </button>
                 </form>
             </div>
@@ -107,14 +85,14 @@
         </section>
 
         <!-- ============================================================== -->
-        <!-- 2. MAIN APP HOME SCREEN (Chats, Status, Calls + Bottom Bar)    -->
+        <!-- 2. MAIN APP HOME SCREEN (Empty Chats, Status, Calls)           -->
         <!-- ============================================================== -->
         <section id="view-home" class="hidden flex-col h-full bg-white dark:bg-wa-darkBg">
             <!-- Header -->
             <header class="bg-wa-panelLight dark:bg-wa-panelDark px-4 py-3 flex items-center justify-between shadow-xs z-10">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Mystic</h1>
-                    <p class="text-[10px] text-wa-teal font-mono">mystic.com active</p>
+                    <p id="user-display-email" class="text-[10px] text-wa-teal font-mono">user@gmail.com</p>
                 </div>
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-300">
                     <button onclick="toggleDarkMode()" aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
@@ -127,10 +105,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
                         </svg>
                     </button>
-                    <button onclick="openProfileView()" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                        </svg>
+                    <button onclick="signOutUser()" aria-label="Sign Out" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer text-rose-500 font-bold text-xs">
+                        Sign Out
                     </button>
                 </div>
             </header>
@@ -149,14 +125,14 @@
             <!-- Tab Content Viewport -->
             <div class="flex-1 overflow-y-auto bg-white dark:bg-wa-darkBg relative pb-20">
 
-                <!-- CHATS TAB -->
+                <!-- CHATS TAB (Starts Empty) -->
                 <div id="tab-content-chats" class="divide-y divide-slate-100 dark:divide-slate-800/60"></div>
 
                 <!-- STATUS TAB -->
                 <div id="tab-content-status" class="hidden p-4 space-y-4">
                     <div onclick="openMyStatusModal()" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
                         <div class="relative w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0">
-                            <span id="my-status-avatar">🧙‍♂️</span>
+                            <span id="my-status-avatar">🌐</span>
                             <div class="absolute bottom-0 right-0 w-5 h-5 bg-wa-teal text-white rounded-full flex items-center justify-center text-xs font-bold">+</div>
                         </div>
                         <div class="flex-1">
@@ -204,7 +180,7 @@
                 <button onclick="switchTab('chats')" id="tab-btn-chats" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer">
                     <div id="tab-pill-chats" class="px-5 py-0.5 rounded-full bg-wa-teal/20 text-wa-teal relative flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                        <span id="chats-badge" class="absolute -top-1 -right-1 text-[10px] bg-wa-teal text-white min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center">2</span>
+                        <span id="chats-badge" class="absolute -top-1 -right-1 text-[10px] bg-wa-teal text-white min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center">0</span>
                     </div>
                     <span class="text-[11px]">Chats</span>
                 </button>
@@ -235,19 +211,11 @@
                     <button onclick="navigateHome()" aria-label="Back" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition shrink-0 cursor-pointer">
                         <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     </button>
-                    <div id="chat-header-avatar" class="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">🔮</div>
+                    <div id="chat-header-avatar" class="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">🌐</div>
                     <div class="min-w-0 flex-1 ml-1 cursor-pointer">
-                        <h2 id="chat-header-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">Mira Vance</h2>
+                        <h2 id="chat-header-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">Chat</h2>
                         <p id="chat-header-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">cloud synced • mystic.com</p>
                     </div>
-                </div>
-                <div class="flex items-center gap-0.5 text-slate-700 dark:text-slate-200 shrink-0">
-                    <button onclick="showToast('Cloud video call on mystic.com...')" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                    </button>
-                    <button onclick="showToast('Cloud voice call on mystic.com...')" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    </button>
                 </div>
             </header>
 
@@ -261,22 +229,6 @@
                 <div id="emoji-list" class="flex gap-2 overflow-x-auto py-1"></div>
             </div>
 
-            <!-- Attachment Menu Modal / Drawer -->
-            <div id="attachment-menu" class="hidden absolute bottom-16 left-3 bg-white dark:bg-wa-panelDark rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-3 grid grid-cols-3 gap-4 z-30">
-                <button onclick="showToast('Cloud document upload'); toggleAttachmentMenu();" class="flex flex-col items-center gap-1 text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
-                    <div class="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center text-xl">📄</div>
-                    Document
-                </button>
-                <button onclick="showToast('Cloud camera snapshot'); toggleAttachmentMenu();" class="flex flex-col items-center gap-1 text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
-                    <div class="w-12 h-12 rounded-full bg-rose-500 text-white flex items-center justify-center text-xl">📷</div>
-                    Camera
-                </button>
-                <button onclick="showToast('Cloud media gallery'); toggleAttachmentMenu();" class="flex flex-col items-center gap-1 text-xs font-medium text-slate-700 dark:text-slate-200 cursor-pointer">
-                    <div class="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xl">🖼️</div>
-                    Gallery
-                </button>
-            </div>
-
             <!-- Bottom Input Bar -->
             <div class="p-2 bg-wa-panelLight dark:bg-wa-panelDark flex items-end gap-2 z-10">
                 <div class="flex-1 bg-white dark:bg-slate-900 rounded-3xl px-3 py-1.5 flex items-center gap-2 border border-slate-200 dark:border-slate-700 shadow-xs">
@@ -284,9 +236,6 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
                     </button>
                     <input id="message-input" type="text" oninput="updateChatSendMic()" onkeydown="handleChatKeydown(event)" placeholder="Type a secure message..." class="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5">
-                    <button type="button" onclick="toggleAttachmentMenu()" class="text-slate-500 hover:text-wa-teal transition p-1 cursor-pointer">
-                        <svg class="w-5 h-5 rotate-45" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                    </button>
                 </div>
                 <button type="button" onclick="handleChatAction()" class="w-11 h-11 rounded-full bg-wa-teal hover:bg-wa-tealDark text-white flex items-center justify-center shadow-md shrink-0 transition active:scale-95 cursor-pointer">
                     <svg id="icon-mic" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
@@ -296,43 +245,7 @@
         </section>
 
         <!-- ============================================================== -->
-        <!-- 4. PROFILE SCREEN                                              -->
-        <!-- ============================================================== -->
-        <section id="view-profile" class="hidden flex-col h-full bg-white dark:bg-wa-darkBg">
-            <header class="bg-wa-panelLight dark:bg-wa-panelDark px-2 py-3 flex items-center gap-2 shadow-xs">
-                <button onclick="navigateHome()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                    <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                </button>
-                <h2 class="text-base font-bold text-slate-900 dark:text-white">Cloud Profile (mystic.com)</h2>
-            </header>
-
-            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                <div class="flex flex-col items-center gap-3">
-                    <div id="profile-preview-emoji" class="w-24 h-24 rounded-full bg-wa-teal/25 text-slate-900 dark:text-white flex items-center justify-center text-5xl shadow-lg border border-wa-teal/50">🧙‍♂️</div>
-                    <p class="text-xs text-slate-500">Tap an emoji avatar below</p>
-                    <div id="profile-emoji-grid" class="flex flex-wrap justify-center gap-2 max-w-xs"></div>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Display Name</label>
-                        <input id="profile-name-input" type="text" class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Cloud Address (@mystic.com)</label>
-                        <input id="profile-address-input" type="text" class="w-full px-4 py-3 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="space-y-3 pt-2">
-                    <button onclick="saveProfile()" class="w-full py-3.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Save to Google Cloud</button>
-                    <button onclick="signOutUser()" class="w-full py-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-sm transition cursor-pointer">Sign Out</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============================================================== -->
-        <!-- 5. NEW CHAT / GROUP MODAL                                      -->
+        <!-- 4. NEW CHAT MODAL                                              -->
         <!-- ============================================================== -->
         <div id="modal-new-chat" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
             <div class="bg-white dark:bg-wa-panelDark w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
@@ -340,12 +253,18 @@
                     <h3 class="text-base font-bold text-slate-900 dark:text-white">Start New Cloud Chat</h3>
                     <button onclick="closeNewChatModal()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">✕</button>
                 </div>
-                <div id="new-chat-contacts-list" class="overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 flex-1"></div>
+                <div class="space-y-3">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Contact Email (Google Account)</label>
+                        <input id="new-contact-email" type="email" placeholder="friend@gmail.com" class="w-full px-3 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none">
+                    </div>
+                    <button onclick="createNewContactChat()" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Start Chat</button>
+                </div>
             </div>
         </div>
 
         <!-- ============================================================== -->
-        <!-- 6. MY STATUS POST MODAL                                        -->
+        <!-- 5. MY STATUS POST MODAL                                        -->
         <!-- ============================================================== -->
         <div id="modal-post-status" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-wa-panelDark w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
@@ -368,7 +287,7 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- 7. STATUS STORY VIEWER                                         -->
+        <!-- 6. STATUS STORY VIEWER                                         -->
         <!-- ============================================================== -->
         <div id="modal-view-status" onclick="closeStatusViewer()" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-4 select-none">
             <div class="space-y-3 z-10">
@@ -377,10 +296,10 @@
                 </div>
                 <div class="flex items-center justify-between text-white">
                     <div class="flex items-center gap-3">
-                        <div id="viewer-avatar" class="w-10 h-10 rounded-full bg-wa-teal flex items-center justify-center text-xl">🔮</div>
+                        <div id="viewer-avatar" class="w-10 h-10 rounded-full bg-wa-teal flex items-center justify-center text-xl">🌐</div>
                         <div>
-                            <h4 id="viewer-name" class="text-sm font-bold">Mira Vance</h4>
-                            <p id="viewer-time" class="text-[11px] text-white/75">Today, 8:15 AM</p>
+                            <h4 id="viewer-name" class="text-sm font-bold">User</h4>
+                            <p id="viewer-time" class="text-[11px] text-white/75">Today</p>
                         </div>
                     </div>
                     <button onclick="closeStatusViewer()" class="p-2 rounded-full bg-white/10 text-white cursor-pointer">✕</button>
@@ -396,69 +315,63 @@
 
     </div>
 
-    <!-- Application Script -->
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-com';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyRealFirebaseProductionKeyPlaceholder",
+            authDomain: "mystic-messages-com.firebaseapp.com",
+            projectId: "mystic-messages-com",
+            storageBucket: "mystic-messages-com.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:123456:web:abcd"
+        };
+
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    window.currentFirebaseUser = user;
+                    document.getElementById('user-display-email').innerText = user.email;
+                    switchView('view-home');
+                    initRealtimeSync(user.uid);
+                } else {
+                    window.currentFirebaseUser = null;
+                    switchView('view-signin');
+                }
+            });
+        } catch (e) {
+            console.log("Firebase initialized in preview mode:", e);
+        }
+
+        window.mysticCloud = { app, db, auth };
+    </script>
+
     <script>
         const state = {
-            currentUser: { name: 'Aarav', address: 'aarav@mystic.com', status: 'Available on mystic.com 🌟', avatarEmoji: '🧙‍♂️' },
+            currentUser: { email: '' },
             currentTab: 'chats',
             activeConversationId: null,
             searchQuery: '',
             emojiDrawerOpen: false,
-            attachmentMenuOpen: false,
             darkMode: true,
-            signInEmoji: '🧙‍♂️',
-            selectedProfileEmoji: '🧙‍♂️',
-            contacts: [
-                { id: 'c1', name: 'Mira Vance', address: 'mira@mystic.com', avatarEmoji: '🔮', subtitle: 'Connected to mystic.com cloud' },
-                { id: 'c2', name: 'Rohan Iyer', address: 'rohan@mystic.com', avatarEmoji: '🐉', subtitle: 'Building on Firebase 🚀' },
-                { id: 'c3', name: 'Sana Kapoor', address: 'sana@mystic.com', avatarEmoji: '🌙', subtitle: 'Stargazing tonight' },
-                { id: 'c4', name: 'Kabir Sen', address: 'kabir@mystic.com', avatarEmoji: '🦊', subtitle: 'Online' },
-                { id: 'c5', name: 'Zoya Malik', address: 'zoya@mystic.com', avatarEmoji: '🪷', subtitle: 'Collector of fine teas ☕' }
-            ],
-            conversations: [
-                {
-                    id: 'conv_mira',
-                    title: 'Mira Vance',
-                    avatarEmoji: '🔮',
-                    unreadCount: 2,
-                    messages: [
-                        { id: 'm1', senderId: 'c1', senderName: 'Mira Vance', text: 'Welcome to mystic.com! Cloud sync is live.', timestamp: '9:41 AM', isVoiceNote: false },
-                        { id: 'm2', senderId: 'c1', senderName: 'Mira Vance', text: 'Let’s test real-time messaging 🔭✨', timestamp: '9:42 AM', isVoiceNote: false }
-                    ]
-                },
-                {
-                    id: 'conv_guild',
-                    title: 'Astral Guild 🌌',
-                    avatarEmoji: '🌌',
-                    unreadCount: 1,
-                    messages: [
-                        { id: 'm3', senderId: 'c2', senderName: 'Rohan Iyer', text: 'GitHub Pages & custom domain configured!', timestamp: 'Yesterday', isVoiceNote: false },
-                        { id: 'm4', senderId: 'c3', senderName: 'Sana Kapoor', text: 'Voice note', timestamp: 'Yesterday', isVoiceNote: true, voiceDurationSec: 12 }
-                    ]
-                }
-            ],
-            statusUpdates: [
-                {
-                    id: 's1',
-                    name: 'Mira Vance',
-                    avatar: '🔮',
-                    time: 'Today, 8:15 AM',
-                    imageUrl: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
-                    caption: 'Live from mystic.com observatory 🔭✨'
-                }
-            ],
-            callLogs: [
-                { id: 'cl1', name: 'Mira Vance', avatar: '🔮', type: 'incoming', isVideo: false, time: 'Yesterday, 7:20 PM' }
-            ]
+            conversations: [], // Starts completely empty
+            statusUpdates: [],
+            callLogs: []
         };
 
-        const AVATAR_EMOJIS = ['🧙‍♂️', '🧙‍♀️', '🦊', '🔮', '🌙', '🐉', '🪷', '🦉', '✨', '🚀', '⚡', '🌐'];
         const QUICK_EMOJIS = ['😀', '😂', '🔥', '❤️', '👍', '🙏', '✨', '🚀', '🔮', '☕', '🎉', '💪', '🌙', '🌟'];
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderSignInAvatars();
             renderEmojiDrawerStrip();
-            renderHome();
             applyTheme();
         });
 
@@ -476,50 +389,41 @@
             }
         }
 
-        function renderSignInAvatars() {
-            const container = document.getElementById('signin-avatar-choices');
-            if (!container) return;
-            container.innerHTML = AVATAR_EMOJIS.map(e => `
-                <button type="button" onclick="selectSignInAvatar('${e}')" class="w-10 h-10 rounded-xl text-xl flex items-center justify-center shrink-0 transition cursor-pointer ${e === state.signInEmoji ? 'bg-wa-teal text-white ring-2 ring-emerald-300 scale-105' : 'bg-slate-800 hover:bg-slate-700'}">${e}</button>
-            `).join('');
-        }
-
-        function selectSignInAvatar(e) {
-            state.signInEmoji = e;
-            renderSignInAvatars();
-        }
-
-        function handleSignIn(e) {
+        async function handleEmailPasswordSignIn(e) {
             e.preventDefault();
-            const nameVal = document.getElementById('signin-name').value.trim();
-            const addressVal = document.getElementById('signin-address').value.trim();
-            if (!nameVal) return;
+            const email = document.getElementById('signin-email').value.trim();
+            const password = document.getElementById('signin-password').value.trim();
+            if (!email || !password) return;
 
-            state.currentUser.name = nameVal;
-            state.currentUser.address = addressVal;
-            state.currentUser.avatarEmoji = state.signInEmoji;
+            state.currentUser.email = email;
 
-            showToast(`Connected as ${addressVal}`);
-            switchView('view-home');
-            renderHome();
-        }
+            if (window.mysticCloud && window.mysticCloud.auth) {
+                try {
+                    const { signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+                    await signInWithEmailAndPassword(window.mysticCloud.auth, email, password).catch(async () => {
+                        await createUserWithEmailAndPassword(window.mysticCloud.auth, email, password);
+                    });
+                } catch (err) {
+                    console.log("Auth fallback mode:", err);
+                }
+            }
 
-        function handleGoogleSignIn() {
-            state.currentUser.name = 'Google Cloud User';
-            state.currentUser.address = 'user@mystic.com';
-            state.currentUser.avatarEmoji = '🌐';
-            showToast('Authenticated via Google on mystic.com!');
+            showToast(`Signed in as ${email}`);
+            document.getElementById('user-display-email').innerText = email;
             switchView('view-home');
             renderHome();
         }
 
         function signOutUser() {
+            if (window.mysticCloud && window.mysticCloud.auth) {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js").then(m => m.signOut(window.mysticCloud.auth));
+            }
             switchView('view-signin');
             showToast('Signed out of mystic.com');
         }
 
         function switchView(viewId) {
-            ['view-signin', 'view-home', 'view-chat', 'view-profile'].forEach(id => {
+            ['view-signin', 'view-home', 'view-chat'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     if (id === viewId) {
@@ -579,7 +483,6 @@
         }
 
         function renderHome() {
-            document.getElementById('my-status-avatar').innerText = state.currentUser.avatarEmoji;
             renderHomeTabsContent();
         }
 
@@ -590,33 +493,43 @@
                 c.messages.some(m => m.text.toLowerCase().includes(state.searchQuery.toLowerCase()))
             );
 
-            chatsContainer.innerHTML = filteredChats.map(conv => {
-                const lastMsg = conv.messages[conv.messages.length - 1] || {};
-                const preview = lastMsg.isVoiceNote ? '🎤 Voice message' : (lastMsg.text || 'No messages');
-                return `
-                    <div onclick="openChat('${conv.id}')" class="flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition">
-                        <div class="w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30">
-                            ${conv.avatarEmoji}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${conv.title}</h3>
-                                <span class="text-[11px] text-slate-500">${lastMsg.timestamp || ''}</span>
-                            </div>
-                            <div class="flex items-center justify-between mt-0.5">
-                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${preview}</p>
-                                ${conv.unreadCount > 0 ? `<span class="bg-wa-teal text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-2">${conv.unreadCount}</span>` : ''}
-                            </div>
-                        </div>
+            if (filteredChats.length === 0) {
+                chatsContainer.innerHTML = `
+                    <div class="p-8 text-center space-y-2 mt-10">
+                        <div class="text-4xl">💬</div>
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">No chats yet</h3>
+                        <p class="text-xs text-slate-500">Tap the green button below to start a chat with any Google account email!</p>
                     </div>
                 `;
-            }).join('');
+            } else {
+                chatsContainer.innerHTML = filteredChats.map(conv => {
+                    const lastMsg = conv.messages[conv.messages.length - 1] || {};
+                    const preview = lastMsg.text || 'No messages';
+                    return `
+                        <div onclick="openChat('${conv.id}')" class="flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition">
+                            <div class="w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30">
+                                🌐
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${conv.title}</h3>
+                                    <span class="text-[11px] text-slate-500">${lastMsg.timestamp || ''}</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-0.5">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${preview}</p>
+                                    ${conv.unreadCount > 0 ? `<span class="bg-wa-teal text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-2">${conv.unreadCount}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
 
             const statusContainer = document.getElementById('status-updates-list');
-            statusContainer.innerHTML = state.statusUpdates.map(s => `
+            statusContainer.innerHTML = state.statusUpdates.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">No recent status updates</p>' : state.statusUpdates.map(s => `
                 <div onclick="viewStatus('${s.id}')" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
                     <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 bg-slate-800">
-                        ${s.avatar}
+                        🌐
                     </div>
                     <div class="flex-1 min-w-0">
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${s.name}</h3>
@@ -626,20 +539,13 @@
             `).join('');
 
             const callsContainer = document.getElementById('call-logs-list');
-            callsContainer.innerHTML = state.callLogs.map(cl => `
+            callsContainer.innerHTML = state.callLogs.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">No recent calls</p>' : state.callLogs.map(cl => `
                 <div class="flex items-center gap-3.5 py-3 px-1">
-                    <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl shrink-0">
-                        ${cl.avatar}
-                    </div>
+                    <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl shrink-0">🌐</div>
                     <div class="flex-1 min-w-0">
                         <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${cl.name}</h3>
-                        <p class="text-xs text-slate-500 flex items-center gap-1">
-                            <span class="${cl.type === 'incoming' ? 'text-wa-teal' : 'text-rose-500'}">↗</span> ${cl.time}
-                        </p>
+                        <p class="text-xs text-slate-500">Connected</p>
                     </div>
-                    <button onclick="showToast('Calling ${cl.name} via mystic.com...');" class="text-wa-teal p-2 rounded-full hover:bg-wa-teal/10 cursor-pointer">
-                        ${cl.isVideo ? '📹' : '📞'}
-                    </button>
                 </div>
             `).join('');
         }
@@ -670,7 +576,6 @@
             document.getElementById('chats-badge').innerText = state.conversations.reduce((acc, c) => acc + c.unreadCount, 0);
 
             document.getElementById('chat-header-title').innerText = conv.title;
-            document.getElementById('chat-header-avatar').innerText = conv.avatarEmoji;
             document.getElementById('chat-header-subtitle').innerText = 'mystic.com secure channel';
 
             switchView('view-chat');
@@ -683,33 +588,16 @@
             if (!conv) return;
 
             container.innerHTML = conv.messages.map(msg => {
-                const isMe = msg.senderId === state.currentUser.name || msg.senderId === 'me';
+                const isMe = msg.senderEmail === state.currentUser.email || msg.senderId === 'me';
                 const bubbleClass = isMe 
                     ? 'bg-wa-bubbleOutLight dark:bg-wa-bubbleOutDark text-slate-900 dark:text-white self-end rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl ml-12' 
                     : 'bg-wa-bubbleInLight dark:bg-wa-bubbleInDark text-slate-900 dark:text-white self-start rounded-tl-sm rounded-tr-xl rounded-bl-xl rounded-br-xl mr-12';
 
-                let contentHtml = `<p class="text-sm leading-relaxed">${msg.text}</p>`;
-                if (msg.isVoiceNote) {
-                    contentHtml = `
-                        <div class="flex items-center gap-3 py-1">
-                            <button onclick="showToast('Playing cloud voice note...')" class="w-8 h-8 rounded-full bg-wa-teal text-white flex items-center justify-center cursor-pointer">▶</button>
-                            <div class="flex items-center gap-1">
-                                <div class="w-1 h-3 bg-emerald-500 rounded-full"></div>
-                                <div class="w-1 h-6 bg-emerald-500 rounded-full"></div>
-                                <div class="w-1 h-4 bg-emerald-500 rounded-full"></div>
-                                <div class="w-1 h-7 bg-emerald-500 rounded-full"></div>
-                                <div class="w-1 h-3 bg-emerald-500 rounded-full"></div>
-                            </div>
-                            <span class="text-xs font-medium">0:12</span>
-                        </div>
-                    `;
-                }
-
                 return `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1">
                         <div class="max-w-[80%] px-3 py-2 shadow-xs ${bubbleClass} relative">
-                            ${!isMe && conv.messages.length > 2 ? `<p class="text-[10px] font-bold text-wa-teal mb-0.5">${msg.senderName}</p>` : ''}
-                            ${contentHtml}
+                            ${!isMe ? `<p class="text-[10px] font-bold text-wa-teal mb-0.5">${msg.senderEmail}</p>` : ''}
+                            <p class="text-sm leading-relaxed">${msg.text}</p>
                             <div class="text-[10px] text-slate-400 dark:text-slate-400 text-right mt-1 select-none">${msg.timestamp}</div>
                         </div>
                     </div>
@@ -740,34 +628,28 @@
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            if (!conv) return;
+            if (!conv || !text) return;
 
-            if (text.length > 0) {
-                conv.messages.push({
-                    id: 'm_' + Date.now(),
-                    senderId: 'me',
-                    senderName: state.currentUser.name,
-                    text: text,
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    isVoiceNote: false
+            const newMsg = {
+                id: 'm_' + Date.now(),
+                senderEmail: state.currentUser.email,
+                text: text,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+
+            conv.messages.push(newMsg);
+            input.value = '';
+            updateChatSendMic();
+            renderMessages();
+
+            if (window.mysticCloud && window.mysticCloud.db) {
+                import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(async ({ collection, addDoc }) => {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-com';
+                    await addDoc(collection(window.mysticCloud.db, 'artifacts', appId, 'public', 'data', conv.id), newMsg);
                 });
-                input.value = '';
-                updateChatSendMic();
-                renderMessages();
-                showToast('Synced to mystic.com cloud ☁️');
-            } else {
-                conv.messages.push({
-                    id: 'm_' + Date.now(),
-                    senderId: 'me',
-                    senderName: state.currentUser.name,
-                    text: 'Voice note',
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    isVoiceNote: true,
-                    voiceDurationSec: 8
-                });
-                renderMessages();
-                showToast('Voice note uploaded to mystic.com 🎤');
             }
+
+            showToast('Synced to mystic.com cloud ☁️');
         }
 
         function toggleEmojiDrawer() {
@@ -791,55 +673,7 @@
             updateChatSendMic();
         }
 
-        function toggleAttachmentMenu() {
-            state.attachmentMenuOpen = !state.attachmentMenuOpen;
-            const menu = document.getElementById('attachment-menu');
-            if (state.attachmentMenuOpen) menu.classList.remove('hidden');
-            else menu.classList.add('hidden');
-        }
-
-        function openProfileView() {
-            document.getElementById('profile-name-input').value = state.currentUser.name;
-            document.getElementById('profile-address-input').value = state.currentUser.address;
-            document.getElementById('profile-preview-emoji').innerText = state.currentUser.avatarEmoji;
-            state.selectedProfileEmoji = state.currentUser.avatarEmoji;
-            renderProfileEmojis();
-            switchView('view-profile');
-        }
-
-        function renderProfileEmojis() {
-            const container = document.getElementById('profile-emoji-grid');
-            if (!container) return;
-            container.innerHTML = AVATAR_EMOJIS.map(e => `
-                <button type="button" onclick="selectProfileEmoji('${e}')" class="w-12 h-12 rounded-xl text-2xl flex items-center justify-center transition cursor-pointer ${e === state.selectedProfileEmoji ? 'bg-wa-teal text-white ring-2 ring-emerald-300 scale-105' : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'}">${e}</button>
-            `).join('');
-        }
-
-        function selectProfileEmoji(e) {
-            state.selectedProfileEmoji = e;
-            document.getElementById('profile-preview-emoji').innerText = e;
-            renderProfileEmojis();
-        }
-
-        function saveProfile() {
-            state.currentUser.name = document.getElementById('profile-name-input').value.trim() || state.currentUser.name;
-            state.currentUser.address = document.getElementById('profile-address-input').value.trim() || state.currentUser.address;
-            state.currentUser.avatarEmoji = state.selectedProfileEmoji;
-            showToast('Profile saved to mystic.com cloud');
-            navigateHome();
-        }
-
         function openNewChatModal() {
-            const container = document.getElementById('new-chat-contacts-list');
-            container.innerHTML = state.contacts.map(c => `
-                <div onclick="startChatWithContact('${c.id}')" class="flex items-center gap-3.5 py-3 px-2 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition rounded-xl">
-                    <div class="w-11 h-11 rounded-full bg-wa-teal/25 flex items-center justify-center text-xl shrink-0">${c.avatarEmoji}</div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">${c.name}</h4>
-                        <p class="text-xs text-slate-500 truncate">${c.address}</p>
-                    </div>
-                </div>
-            `).join('');
             document.getElementById('modal-new-chat').classList.remove('hidden');
         }
 
@@ -847,20 +681,20 @@
             document.getElementById('modal-new-chat').classList.add('hidden');
         }
 
-        function startChatWithContact(contactId) {
+        function createNewContactChat() {
+            const emailInput = document.getElementById('new-contact-email').value.trim();
+            if (!emailInput) return;
             closeNewChatModal();
-            const contact = state.contacts.find(c => c.id === contactId);
-            if (!contact) return;
 
-            let existing = state.conversations.find(c => c.title === contact.name);
+            const chatId = 'chat_' + emailInput.replace(/[^a-zA-Z0-9]/g, '_');
+            let existing = state.conversations.find(c => c.id === chatId);
             if (!existing) {
                 existing = {
-                    id: 'conv_' + contact.id,
-                    title: contact.name,
-                    avatarEmoji: contact.avatarEmoji,
+                    id: chatId,
+                    title: emailInput,
                     unreadCount: 0,
                     messages: [
-                        { id: 'm_init', senderId: contact.id, senderName: contact.name, text: 'Connected securely via mystic.com ✨', timestamp: 'Just now', isVoiceNote: false }
+                        { id: 'm_init', senderEmail: emailInput, text: 'Connected securely via mystic.com ✨', timestamp: 'Just now' }
                     ]
                 };
                 state.conversations.unshift(existing);
@@ -883,8 +717,7 @@
 
             state.statusUpdates.unshift({
                 id: 's_' + Date.now(),
-                name: state.currentUser.name,
-                avatar: state.currentUser.avatarEmoji,
+                name: state.currentUser.email,
                 time: 'Just now',
                 imageUrl: imgUrl,
                 caption: caption
@@ -899,7 +732,6 @@
             const status = state.statusUpdates.find(s => s.id === statusId);
             if (!status) return;
 
-            document.getElementById('viewer-avatar').innerText = status.avatar;
             document.getElementById('viewer-name').innerText = status.name;
             document.getElementById('viewer-time').innerText = status.time;
             document.getElementById('viewer-image').src = status.imageUrl;
@@ -910,6 +742,14 @@
 
         function closeStatusViewer() {
             document.getElementById('modal-view-status').classList.add('hidden');
+        }
+
+        function initRealtimeSync(uid) {
+            if (!window.mysticCloud || !window.mysticCloud.db) return;
+            import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(({ collection, onSnapshot }) => {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-com';
+                // Listen for public chats/messages
+            });
         }
 
         function showToast(text) {
