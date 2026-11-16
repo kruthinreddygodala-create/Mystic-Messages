@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -105,8 +106,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
                         </svg>
                     </button>
-                    <button onclick="signOutUser()" aria-label="Sign Out" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer text-rose-500 font-bold text-xs">
-                        Sign Out
+                    <button onclick="openSettingsModal()" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
                     </button>
                 </div>
             </header>
@@ -401,14 +405,60 @@
             </div>
         </div>
 
+        <!-- ============================================================== -->
+        <!-- 10. SETTINGS MODAL (Cloud Sync Setup + Sign Out Option)        -->
+        <!-- ============================================================== -->
+        <div id="modal-settings" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-white dark:bg-wa-panelDark w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Settings</h3>
+                    <button onclick="closeSettingsModal()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">✕</button>
+                </div>
+
+                <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-100 dark:bg-slate-900/80">
+                    <div class="w-12 h-12 rounded-full bg-wa-teal/25 border border-wa-teal/50 flex items-center justify-center text-2xl">
+                        👤
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h4 id="settings-username" class="text-sm font-bold text-slate-900 dark:text-white truncate">User</h4>
+                        <p id="settings-cloud-status" class="text-xs text-wa-teal font-medium">Checking cloud sync...</p>
+                    </div>
+                </div>
+
+                <!-- Paste Firebase Config Right Inside App -->
+                <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 space-y-2 border border-slate-200 dark:border-slate-800">
+                    <label class="text-xs font-bold text-wa-teal uppercase tracking-wider block">Firebase Cloud Config</label>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Paste your <code class="text-wa-teal">firebaseConfig</code> from Firebase Console to sync friend requests, messages &amp; calls across phones:</p>
+                    <textarea id="firebase-config-input" rows="4" placeholder='Paste firebaseConfig { apiKey: "...", projectId: "..." } here...' class="w-full p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none"></textarea>
+                    <button onclick="saveCustomFirebaseConfig()" class="w-full py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-xs shadow-sm transition cursor-pointer">
+                        Connect Firebase Cloud
+                    </button>
+                </div>
+
+                <div class="space-y-2">
+                    <button onclick="toggleDarkMode()" class="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-semibold text-sm flex items-center justify-between transition cursor-pointer">
+                        <span>Appearance Theme</span>
+                        <span class="text-xs text-wa-teal font-bold">Toggle Light / Dark</span>
+                    </button>
+
+                    <button onclick="signOutUser()" class="w-full py-3.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition cursor-pointer">
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Main App State & UI Logic (Runs immediately without module dependencies) -->
+    <!-- Main App State & UI Logic -->
     <script>
         const STORAGE_KEY_USER = 'mystic_user_account';
-        const STORAGE_KEY_CONVOS = 'mystic_conversations';
-        const STORAGE_KEY_STATUS = 'mystic_status_updates';
-        const STORAGE_KEY_CALLS = 'mystic_call_logs';
+        const STORAGE_KEY_FIREBASE = 'mystic_firebase_config';
+
+        function getUserStorageKey(username, type) {
+            const safeUser = (username || 'guest').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+            return `mystic_${safeUser}_${type}`;
+        }
 
         window.state = {
             currentUser: null,
@@ -438,12 +488,31 @@
             loadLocalStorageData();
         });
 
+        function loadUserScopedData(username) {
+            state.conversations = [];
+            state.statusUpdates = [];
+            state.callLogs = [];
+            state.activeConversationId = null;
+
+            try {
+                const savedConvos = localStorage.getItem(getUserStorageKey(username, 'convos'));
+                if (savedConvos) state.conversations = JSON.parse(savedConvos);
+
+                const savedStatus = localStorage.getItem(getUserStorageKey(username, 'status'));
+                if (savedStatus) state.statusUpdates = JSON.parse(savedStatus);
+
+                const savedCalls = localStorage.getItem(getUserStorageKey(username, 'calls'));
+                if (savedCalls) state.callLogs = JSON.parse(savedCalls);
+            } catch (e) {}
+        }
+
         function loadLocalStorageData() {
             try {
                 const savedUser = localStorage.getItem(STORAGE_KEY_USER);
                 if (savedUser) {
                     state.currentUser = JSON.parse(savedUser);
                     document.getElementById('user-display-name').innerText = state.currentUser.username;
+                    loadUserScopedData(state.currentUser.username);
                     switchView('view-home');
                     if (window.startCloudListeners) {
                         window.startCloudListeners(state.currentUser.username);
@@ -451,15 +520,6 @@
                 } else {
                     switchView('view-signin');
                 }
-
-                const savedConvos = localStorage.getItem(STORAGE_KEY_CONVOS);
-                if (savedConvos) state.conversations = JSON.parse(savedConvos);
-
-                const savedStatus = localStorage.getItem(STORAGE_KEY_STATUS);
-                if (savedStatus) state.statusUpdates = JSON.parse(savedStatus);
-
-                const savedCalls = localStorage.getItem(STORAGE_KEY_CALLS);
-                if (savedCalls) state.callLogs = JSON.parse(savedCalls);
             } catch (e) {
                 switchView('view-signin');
             }
@@ -470,11 +530,12 @@
         window.saveLocalStorageData = function() {
             try {
                 if (state.currentUser) {
+                    const uname = state.currentUser.username;
                     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(state.currentUser));
+                    localStorage.setItem(getUserStorageKey(uname, 'convos'), JSON.stringify(state.conversations));
+                    localStorage.setItem(getUserStorageKey(uname, 'status'), JSON.stringify(state.statusUpdates));
+                    localStorage.setItem(getUserStorageKey(uname, 'calls'), JSON.stringify(state.callLogs));
                 }
-                localStorage.setItem(STORAGE_KEY_CONVOS, JSON.stringify(state.conversations));
-                localStorage.setItem(STORAGE_KEY_STATUS, JSON.stringify(state.statusUpdates));
-                localStorage.setItem(STORAGE_KEY_CALLS, JSON.stringify(state.callLogs));
             } catch (e) {}
         };
 
@@ -504,7 +565,12 @@
                 return;
             }
 
+            if (window.stopCloudListeners) {
+                window.stopCloudListeners();
+            }
+
             state.currentUser = { username, password };
+            loadUserScopedData(username);
             window.saveLocalStorageData();
 
             showToast(`Welcome, ${username}!`);
@@ -517,9 +583,74 @@
             }
         };
 
+        function openSettingsModal() {
+            if (state.currentUser) {
+                document.getElementById('settings-username').innerText = state.currentUser.username;
+            }
+            const statusEl = document.getElementById('settings-cloud-status');
+            if (statusEl) {
+                statusEl.innerText = window.isCloudConnected ? '● Cloud Sync Active (Real-Time)' : '○ Offline — Paste Firebase Config Below';
+            }
+            const savedCfg = localStorage.getItem(STORAGE_KEY_FIREBASE);
+            if (savedCfg) {
+                document.getElementById('firebase-config-input').value = savedCfg;
+            }
+            document.getElementById('modal-settings').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('modal-settings').classList.add('hidden');
+        }
+
+        function parseFirebaseConfigInput(rawText) {
+            const startIdx = rawText.indexOf('{');
+            const endIdx = rawText.lastIndexOf('}');
+            if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return null;
+            const objText = rawText.slice(startIdx, endIdx + 1);
+            try {
+                return JSON.parse(objText);
+            } catch (e) {
+                try {
+                    const normalized = objText
+                        .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
+                        .replace(/'/g, '"')
+                        .replace(/,\s*}/g, '}');
+                    return JSON.parse(normalized);
+                } catch (e2) {
+                    return null;
+                }
+            }
+        }
+
+        async function saveCustomFirebaseConfig() {
+            const raw = document.getElementById('firebase-config-input').value.trim();
+            const parsed = parseFirebaseConfigInput(raw);
+            if (!parsed || !parsed.apiKey || !parsed.projectId) {
+                showToast('Invalid firebaseConfig! Copy the { apiKey: ... } block from Firebase.');
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY_FIREBASE, JSON.stringify(parsed));
+            showToast('Connecting to Firebase Cloud...');
+            if (window.reinitFirebaseWithConfig) {
+                await window.reinitFirebaseWithConfig(parsed);
+            }
+            openSettingsModal();
+        }
+
         function signOutUser() {
+            closeSettingsModal();
+            if (window.stopCloudListeners) {
+                window.stopCloudListeners();
+            }
             localStorage.removeItem(STORAGE_KEY_USER);
             state.currentUser = null;
+            state.conversations = [];
+            state.statusUpdates = [];
+            state.callLogs = [];
+            state.activeConversationId = null;
+            document.getElementById('signin-username').value = '';
+            document.getElementById('signin-password').value = '';
+            window.renderHome();
             switchView('view-signin');
             showToast('Signed out successfully');
         }
@@ -791,11 +922,18 @@
                 return;
             }
             closeAddFriendModal();
-            showToast(`Sending friend request to ${friendName}...`);
 
-            if (window.cloudSendFriendRequest) {
+            if (!window.isCloudConnected || !window.cloudSendFriendRequest) {
+                showToast('Tap Settings (⚙️) and connect Firebase Cloud first!');
+                return;
+            }
+
+            showToast(`Sending friend request to ${friendName}...`);
+            try {
                 await window.cloudSendFriendRequest(state.currentUser.username, friendName);
                 showToast(`Request sent! Waiting for ${friendName} to accept.`);
+            } catch (err) {
+                showToast('Failed to send request: ' + (err.message || 'Check Firestore rules'));
             }
         }
 
@@ -850,7 +988,11 @@
 
         async function openAudioCallModal(overrideName = null, isAnswering = false) {
             const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || 'Friend'));
+            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || null));
+            if (!targetName) {
+                showToast('Add a friend first before calling!');
+                return;
+            }
             
             document.getElementById('audio-caller-name').innerText = targetName;
             document.getElementById('audio-call-status').innerText = isAnswering ? 'Connecting voice...' : 'Ringing securely...';
@@ -866,9 +1008,11 @@
             window.saveLocalStorageData();
 
             try {
-                state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                }
             } catch (err) {
-                showToast('Please allow microphone access to speak');
+                showToast('Microphone permission denied');
             }
 
             if (!isAnswering && window.cloudStartCall && state.currentUser) {
@@ -878,7 +1022,11 @@
 
         async function openVideoCallModal(overrideName = null, isAnswering = false) {
             const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || 'Friend'));
+            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || null));
+            if (!targetName) {
+                showToast('Add a friend first before video calling!');
+                return;
+            }
 
             document.getElementById('video-caller-name').innerText = targetName;
             document.getElementById('video-call-timer').innerText = isAnswering ? 'Connecting video...' : 'Ringing...';
@@ -897,14 +1045,40 @@
             const fallbackUi = document.getElementById('video-fallback-ui');
             const camNote = document.getElementById('video-cam-note');
 
-            try {
-                state.localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVidEl.srcObject = state.localStream;
-                localVidEl.classList.remove('hidden');
-            } catch (err) {
+            let mediaStream = null;
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user' },
+                        audio: true
+                    });
+                } catch (e1) {
+                    try {
+                        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    } catch (e2) {
+                        try {
+                            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        } catch (e3) {}
+                    }
+                }
+            }
+
+            if (mediaStream) {
+                state.localStream = mediaStream;
+                if (mediaStream.getVideoTracks().length > 0) {
+                    localVidEl.srcObject = mediaStream;
+                    localVidEl.classList.remove('hidden');
+                    localVidEl.play().catch(() => {});
+                    camNote.innerText = 'Camera active • Waiting for friend...';
+                } else {
+                    localVidEl.classList.add('hidden');
+                    fallbackUi.classList.remove('hidden');
+                    camNote.innerText = 'Voice Connected (Camera blocked by browser)';
+                }
+            } else {
                 localVidEl.classList.add('hidden');
                 fallbackUi.classList.remove('hidden');
-                camNote.innerText = 'Voice Connected (Camera unavailable)';
+                camNote.innerText = 'Open on HTTPS website to enable camera';
             }
 
             if (!isAnswering && window.cloudStartCall && state.currentUser) {
@@ -1057,39 +1231,64 @@
 
     <!-- Firebase Realtime Cloud Sync & WebRTC Live Audio/Video -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, deleteApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-com';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        function getResolvedFirebaseConfig() {
+            if (typeof __firebase_config !== 'undefined') {
+                return JSON.parse(__firebase_config);
+            }
+            try {
+                const saved = localStorage.getItem('mystic_firebase_config');
+                if (saved) return JSON.parse(saved);
+            } catch (e) {}
+            return null;
+        }
 
         let db = null;
         let auth = null;
         let firebaseReady = false;
+        window.isCloudConnected = false;
 
-        async function initCloud() {
-            if (!firebaseConfig) return;
+        async function initCloud(customCfg = null) {
+            const cfg = customCfg || getResolvedFirebaseConfig();
+            if (!cfg) {
+                return;
+            }
             try {
-                const app = initializeApp(firebaseConfig);
+                for (const existingApp of getApps()) {
+                    await deleteApp(existingApp);
+                }
+                const app = initializeApp(cfg);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfg) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
                     await signInAnonymously(auth);
                 }
                 firebaseReady = true;
+                window.isCloudConnected = true;
                 if (window.state && window.state.currentUser) {
                     window.startCloudListeners(window.state.currentUser.username);
                 }
             } catch (err) {
-                console.warn("Cloud sync running in local fallback mode:", err);
+                console.error("Cloud sync error:", err);
+                firebaseReady = false;
+                window.isCloudConnected = false;
             }
         }
 
+        window.reinitFirebaseWithConfig = async function(cfg) {
+            window.stopCloudListeners();
+            await initCloud(cfg);
+        };
+
         function normalizeUser(name) {
-            return name.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+            return (name || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
         }
 
         function getChatDocId(userA, userB) {
@@ -1111,13 +1310,19 @@
             ]
         };
 
+        window.stopCloudListeners = function() {
+            if (unsubRequests) { unsubRequests(); unsubRequests = null; }
+            if (unsubChats) { unsubChats(); unsubChats = null; }
+            if (unsubCalls) { unsubCalls(); unsubCalls = null; }
+            if (unsubActiveCallDoc) { unsubActiveCallDoc(); unsubActiveCallDoc = null; }
+            if (unsubIceCandidates) { unsubIceCandidates(); unsubIceCandidates = null; }
+        };
+
         window.startCloudListeners = function(username) {
             if (!firebaseReady || !db || !username) return;
             const myNorm = normalizeUser(username);
 
-            if (unsubRequests) unsubRequests();
-            if (unsubChats) unsubChats();
-            if (unsubCalls) unsubCalls();
+            window.stopCloudListeners();
 
             // 1. Listen for Friend Requests sent TO me
             const reqCol = collection(db, 'artifacts', appId, 'public', 'data', 'friend_requests');
@@ -1136,8 +1341,8 @@
                 let updated = false;
                 snapshot.forEach((docSnap) => {
                     const data = docSnap.data();
-                    const participants = data.participants || [];
-                    const isParticipant = participants.includes(myNorm) || docSnap.id.includes(`_${myNorm}`);
+                    const participants = (data.participants || []).map(p => normalizeUser(p));
+                    const isParticipant = participants.includes(myNorm) || docSnap.id.split('_').includes(myNorm);
                     if (isParticipant) {
                         const names = data.participantNames || [];
                         const friendName = names.find(n => normalizeUser(n) !== myNorm) || 'Friend';
@@ -1394,3 +1599,11 @@
     </script>
 </body>
 </html>
+```
+
+### How to get your `firebaseConfig` in 3 taps on your phone:
+1. Go back to your **Mystic-Messages** project on [console.firebase.google.com](https://console.firebase.google.com).
+2. Tap **`☰`** (top left) → **Project Overview** → tap **`+ Add app`** → tap the **`</>` (Web)** icon.
+3. Type any nickname (like `mystic-web`), tap **Register app**, and **Copy** the `const firebaseConfig = { ... };` text shown on screen.
+4. Open your app, tap **Settings (`⚙️`)** in the top right, paste it into the **Firebase Cloud Config** box, and tap **Connect Firebase Cloud**! (Do the same on both phones so both connect to your Firebase project).
+```
