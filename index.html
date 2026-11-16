@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -41,15 +40,59 @@
     <!-- Mobile Shell Container -->
     <div id="app-shell" class="w-full max-w-md h-full sm:h-[92vh] bg-wa-lightBg dark:bg-wa-darkBg sm:rounded-2xl sm:shadow-2xl flex flex-col relative overflow-hidden select-none border border-slate-700">
 
-        <!-- Toast Notification -->
+        <!-- Toast Notification Banner -->
         <div id="toast-banner" class="pointer-events-none fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 -translate-y-4">
             <div id="toast-text" class="bg-slate-900/95 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg backdrop-blur-md">
-                Synced with mystic.com
+                Notification
+            </div>
+        </div>
+
+        <!-- Friend Request Popup Modal -->
+        <div id="modal-friend-request" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 text-center">
+                <div class="w-16 h-16 mx-auto rounded-full bg-wa-teal/20 text-wa-teal flex items-center justify-center text-3xl">👋</div>
+                <h3 id="friend-request-title" class="text-base font-bold text-slate-900 dark:text-white">Friend Request</h3>
+                <p id="friend-request-subtitle" class="text-xs text-slate-500 dark:text-slate-400">wants to become your friend!</p>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="respondFriendRequest(false)" class="flex-1 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm transition">Decline</button>
+                    <button onclick="respondFriendRequest(true)" class="flex-1 py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition">Accept</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming Call Modal -->
+        <div id="modal-incoming-call" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-between p-8 text-white text-center">
+            <div class="pt-12 space-y-3">
+                <div class="w-24 h-24 mx-auto rounded-full bg-wa-teal/30 border-2 border-wa-teal flex items-center justify-center text-4xl animate-pulse">📞</div>
+                <h2 id="incoming-call-title" class="text-xl font-bold">Incoming Call...</h2>
+                <p id="incoming-call-subtitle" class="text-xs text-slate-400">Mystic Cloud Call</p>
+            </div>
+            <div class="flex gap-6 pb-12">
+                <button onclick="rejectIncomingCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-2xl shadow-xl transition">✕</button>
+                <button onclick="acceptIncomingCall()" class="w-16 h-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-2xl shadow-xl transition">✓</button>
+            </div>
+        </div>
+
+        <!-- Active Call Screen -->
+        <div id="view-call" class="hidden absolute inset-0 bg-slate-950 z-50 flex flex-col justify-between p-4 text-white">
+            <div class="flex justify-between items-center pt-2">
+                <span id="call-status-timer" class="text-xs font-mono bg-black/40 px-3 py-1 rounded-full">00:00</span>
+                <span id="call-peer-name" class="text-sm font-bold">Call</span>
+                <div class="w-8"></div>
+            </div>
+            <div class="flex-1 relative flex items-center justify-center overflow-hidden my-3 rounded-2xl bg-slate-900 border border-slate-800">
+                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+                <video id="local-video" autoplay muted playsinline class="absolute bottom-4 right-4 w-28 h-40 object-cover rounded-xl border-2 border-white/20 shadow-lg"></video>
+                <div id="audio-call-avatar" class="text-6xl hidden">🗣️</div>
+                <audio id="remote-audio" autoplay></audio>
+            </div>
+            <div class="flex justify-center gap-6 pb-6">
+                <button onclick="hangUpCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">📞</button>
             </div>
         </div>
 
         <!-- ============================================================== -->
-        <!-- 1. USERNAME & PASSWORD SIGN IN / REGISTER SCREEN               -->
+        <!-- 1. SIGN IN SCREEN (Username & Password)                        -->
         <!-- ============================================================== -->
         <section id="view-signin" class="flex flex-col h-full bg-wa-darkBg text-white p-6 justify-between z-30">
             <div class="pt-8 text-center space-y-3">
@@ -58,42 +101,41 @@
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight">mystic.com</h1>
                 <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                    Secure account sign in with username &amp; password. Saved on your device.
+                    Real-time cloud messaging, friend requests, voice &amp; video calls.
                 </p>
             </div>
 
             <div class="space-y-4 my-auto">
-                <form onsubmit="handleUsernameSignIn(event)" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3.5 border border-slate-700/60">
+                <form onsubmit="handleAuthSubmit(event)" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3.5 border border-slate-700/60">
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Username / Handle</label>
-                        <input id="signin-username" type="text" required placeholder="e.g. Aarav" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Username</label>
+                        <input id="auth-username" type="text" required placeholder="e.g., Aarav" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Password</label>
-                        <input id="signin-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+                        <input id="auth-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
-                    <button type="submit" onclick="handleUsernameSignIn(event)" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-lg transition active:scale-[0.99] cursor-pointer">
+                    <button type="submit" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-lg transition active:scale-[0.99] cursor-pointer">
                         Sign In / Register
                     </button>
                 </form>
             </div>
 
             <p class="text-center text-[11px] text-slate-500 pb-2">
-                mystic.com • Secure Local Account Storage
+                mystic.com • Secure cloud sync
             </p>
         </section>
 
         <!-- ============================================================== -->
-        <!-- 2. MAIN APP HOME SCREEN (Chats, Status, Calls)                 -->
+        <!-- 2. MAIN APP HOME SCREEN                                        -->
         <!-- ============================================================== -->
         <section id="view-home" class="hidden flex-col h-full bg-white dark:bg-wa-darkBg">
-            <!-- Header -->
             <header class="bg-wa-panelLight dark:bg-wa-panelDark px-4 py-3 flex items-center justify-between shadow-xs z-10">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Mystic</h1>
-                    <p id="user-display-name" class="text-[10px] text-wa-teal font-mono">User</p>
+                    <p id="header-user-display" class="text-[10px] text-wa-teal font-mono">Connected</p>
                 </div>
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-300">
                     <button onclick="toggleDarkMode()" aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
@@ -101,12 +143,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </button>
-                    <button onclick="openSearchTab()" aria-label="Search" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
-                        </svg>
-                    </button>
-                    <button onclick="openSettingsModal()" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    <button onclick="openSettingsView()" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -115,76 +152,37 @@
                 </div>
             </header>
 
-            <!-- Search Bar Drawer -->
-            <div id="search-container" class="hidden bg-wa-panelLight dark:bg-wa-panelDark px-4 pb-3 border-b border-slate-200 dark:border-slate-800">
-                <div class="relative flex items-center">
-                    <svg class="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
-                    </svg>
-                    <input id="home-search-input" type="text" oninput="handleHomeSearch(this.value)" placeholder="Search chats..." class="w-full pl-9 pr-8 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 text-sm rounded-lg focus:outline-none border border-slate-300 dark:border-slate-700">
-                    <button onclick="closeSearchTab()" class="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
-                </div>
-            </div>
-
-            <!-- Tab Content Viewport -->
             <div class="flex-1 overflow-y-auto bg-white dark:bg-wa-darkBg relative pb-20">
-
-                <!-- CHATS TAB -->
+                <!-- Chats Tab -->
                 <div id="tab-content-chats" class="divide-y divide-slate-100 dark:divide-slate-800/60"></div>
-
-                <!-- STATUS TAB -->
+                <!-- Status Tab -->
                 <div id="tab-content-status" class="hidden p-4 space-y-4">
                     <div onclick="document.getElementById('gallery-file-input').click()" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
-                        <div class="relative w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0">
-                            <span id="my-status-avatar">📸</span>
+                        <div class="relative w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 overflow-hidden">
+                            <span id="my-status-avatar">🧙‍♂️</span>
+                            <img id="my-status-thumb" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                             <div class="absolute bottom-0 right-0 w-5 h-5 bg-wa-teal text-white rounded-full flex items-center justify-center text-xs font-bold">+</div>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Add status update</h3>
-                            <p class="text-xs text-slate-500">Choose picture from phone gallery</p>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">My status</h3>
+                            <p class="text-xs text-slate-500">Tap to select picture from device gallery</p>
                         </div>
                     </div>
-                    <input id="gallery-file-input" type="file" accept="image/*" class="hidden" onchange="handleGalleryImageSelect(event)">
-                    
+                    <input type="file" id="gallery-file-input" accept="image/*" class="hidden" onchange="handleGalleryStatusUpload(event)">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">Recent updates</p>
                     <div id="status-updates-list" class="space-y-4"></div>
                 </div>
-
-                <!-- CALLS TAB -->
+                <!-- Calls Tab -->
                 <div id="tab-content-calls" class="hidden p-4 space-y-4">
-                    <div onclick="openAudioCallModal()" class="cursor-pointer bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-2xl flex items-center gap-3 hover:opacity-90 transition">
-                        <div class="w-10 h-10 rounded-full bg-wa-teal text-white flex items-center justify-center text-lg">📞</div>
-                        <div class="flex-1">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Start New Voice Call</h3>
-                            <p class="text-xs text-slate-500">Secure end-to-end voice</p>
-                        </div>
-                    </div>
-                    <div onclick="openVideoCallModal()" class="cursor-pointer bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-2xl flex items-center gap-3 hover:opacity-90 transition">
-                        <div class="w-10 h-10 rounded-full bg-purple-600 text-white flex items-center justify-center text-lg">📹</div>
-                        <div class="flex-1">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">Start New Video Call</h3>
-                            <p class="text-xs text-slate-500">HD camera streaming</p>
-                        </div>
-                    </div>
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-2">Recent Call Logs</p>
                     <div id="call-logs-list" class="divide-y divide-slate-100 dark:divide-slate-800"></div>
                 </div>
-
             </div>
 
-            <!-- Floating Action Button -->
+            <!-- Floating Action Button for Friend Request -->
             <div class="absolute bottom-20 right-5 z-20">
-                <button id="home-fab" onclick="handleFabAction()" class="w-14 h-14 rounded-2xl bg-wa-teal hover:bg-wa-tealDark active:scale-95 text-white flex items-center justify-center shadow-lg transition cursor-pointer">
-                    <svg id="fab-icon-chat" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M19.005 3.175H4.995C3.895 3.175 3 4.07 3 5.17v11.66c0 1.1.895 1.995 1.995 1.995H15l4.5 4.5V5.17c0-1.1-.895-1.995-1.995-1.995z"/>
-                    </svg>
-                    <svg id="fab-icon-camera" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    <svg id="fab-icon-phone" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
+                <button onclick="openAddFriendModal()" class="w-14 h-14 rounded-2xl bg-wa-teal hover:bg-wa-tealDark active:scale-95 text-white flex items-center justify-center shadow-lg transition cursor-pointer" title="Add Friend">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                 </button>
             </div>
 
@@ -193,18 +191,15 @@
                 <button onclick="switchTab('chats')" id="tab-btn-chats" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer">
                     <div id="tab-pill-chats" class="px-5 py-0.5 rounded-full bg-wa-teal/20 text-wa-teal relative flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-                        <span id="chats-badge" class="absolute -top-1 -right-1 text-[10px] bg-wa-teal text-white min-w-[18px] h-[18px] px-1 rounded-full font-bold flex items-center justify-center">0</span>
                     </div>
                     <span class="text-[11px]">Chats</span>
                 </button>
-
                 <button onclick="switchTab('status')" id="tab-btn-status" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
                     <div id="tab-pill-status" class="px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="14 4"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
                     </div>
                     <span class="text-[11px]">Updates</span>
                 </button>
-
                 <button onclick="switchTab('calls')" id="tab-btn-calls" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
                     <div id="tab-pill-calls" class="px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
@@ -218,326 +213,136 @@
         <!-- 3. CHAT ROOM VIEW                                              -->
         <!-- ============================================================== -->
         <section id="view-chat" class="hidden flex-col h-full bg-wa-lightBg dark:bg-wa-darkBg relative">
-            <!-- Chat Header -->
             <header class="bg-wa-panelLight dark:bg-wa-panelDark px-2 py-2.5 flex items-center justify-between shadow-xs z-10">
                 <div class="flex items-center gap-1 min-w-0 flex-1">
                     <button onclick="navigateHome()" aria-label="Back" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition shrink-0 cursor-pointer">
                         <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     </button>
                     <div id="chat-header-avatar" class="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">👤</div>
-                    <div class="min-w-0 flex-1 ml-1 cursor-pointer">
+                    <div class="min-w-0 flex-1 ml-1">
                         <h2 id="chat-header-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">Chat</h2>
-                        <p id="chat-header-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">secure chat</p>
+                        <p id="chat-header-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Online</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-0.5 text-slate-700 dark:text-slate-200 shrink-0">
-                    <button onclick="openVideoCallModal()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    <button onclick="startVideoCall()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Video Call">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
-                    <button onclick="openAudioCallModal()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    <button onclick="startVoiceCall()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Voice Call">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     </button>
                 </div>
             </header>
 
-            <!-- Messages Stream Area -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
-                <!-- Populated by JS -->
-            </div>
+            <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
-            <!-- Emoji Picker Drawer -->
-            <div id="emoji-drawer" class="hidden bg-white dark:bg-wa-panelDark border-t border-slate-200 dark:border-slate-800 p-2">
-                <div id="emoji-list" class="flex gap-2 overflow-x-auto py-1"></div>
-            </div>
-
-            <!-- Bottom Input Bar -->
             <div class="p-2 bg-wa-panelLight dark:bg-wa-panelDark flex items-end gap-2 z-10">
                 <div class="flex-1 bg-white dark:bg-slate-900 rounded-3xl px-3 py-1.5 flex items-center gap-2 border border-slate-200 dark:border-slate-700 shadow-xs">
-                    <button type="button" onclick="toggleEmojiDrawer()" class="text-slate-500 hover:text-wa-teal transition p-1 cursor-pointer">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
-                    </button>
-                    <input id="message-input" type="text" oninput="updateChatSendMic()" onkeydown="handleChatKeydown(event)" placeholder="Type a message..." class="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5">
+                    <input id="message-input" type="text" onkeydown="handleChatKeydown(event)" placeholder="Type a message..." class="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5">
                 </div>
-                <button type="button" onclick="handleChatAction()" class="w-11 h-11 rounded-full bg-wa-teal hover:bg-wa-tealDark text-white flex items-center justify-center shadow-md shrink-0 transition active:scale-95 cursor-pointer">
-                    <svg id="icon-mic" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
-                    <svg id="icon-send" class="w-5 h-5 hidden translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                <button type="button" onclick="sendChatMessage()" class="w-11 h-11 rounded-full bg-wa-teal hover:bg-wa-tealDark text-white flex items-center justify-center shadow-md shrink-0 transition active:scale-95 cursor-pointer">
+                    <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
             </div>
         </section>
 
         <!-- ============================================================== -->
-        <!-- 4. ADD FRIEND REQUEST MODAL                                    -->
+        <!-- 4. SETTINGS SCREEN (Replacing Sign Out)                        -->
         <!-- ============================================================== -->
-        <div id="modal-add-friend" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-40 flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="bg-white dark:bg-wa-panelDark w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl space-y-4">
+        <section id="view-settings" class="hidden flex-col h-full bg-white dark:bg-wa-darkBg">
+            <header class="bg-wa-panelLight dark:bg-wa-panelDark px-2 py-3 flex items-center gap-2 shadow-xs">
+                <button onclick="navigateHome()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <h2 class="text-base font-bold text-slate-900 dark:text-white">Settings</h2>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <div class="flex flex-col items-center gap-3">
+                    <div id="settings-avatar-preview" class="w-20 h-20 rounded-full bg-wa-teal/25 text-white flex items-center justify-center text-4xl shadow-lg border border-wa-teal/50">🧙‍♂️</div>
+                    <div class="text-center">
+                        <h3 id="settings-username-display" class="font-bold text-base text-slate-900 dark:text-white">User</h3>
+                        <p class="text-xs text-wa-teal">Online on mystic.com</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <button onclick="openAddFriendModal()" class="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold text-sm flex items-center justify-between transition cursor-pointer">
+                        <span>Send Friend Request</span>
+                        <span>➕</span>
+                    </button>
+                    <button onclick="signOutUser()" class="w-full py-3.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-sm transition cursor-pointer">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Friend Modal -->
+        <div id="modal-add-friend" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Add Friend Request</h3>
-                    <button onclick="closeAddFriendModal()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">✕</button>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Add Friend by Username</h3>
+                    <button onclick="closeAddFriendModal()" class="p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">✕</button>
                 </div>
-                <div class="space-y-3">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Friend Username</label>
-                        <input id="friend-username-input" type="text" placeholder="Enter username..." class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none">
-                    </div>
-                    <button onclick="sendFriendRequest()" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Send Friend Request</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 5. INCOMING FRIEND REQUEST NOTIFICATION MODAL                  -->
-        <!-- ============================================================== -->
-        <div id="modal-incoming-request" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-6 shadow-2xl text-center space-y-4">
-                <div class="w-16 h-16 mx-auto rounded-full bg-wa-teal/20 text-wa-teal flex items-center justify-center text-3xl">👥</div>
-                <h3 id="request-title" class="text-base font-bold text-slate-900 dark:text-white">User wants to become your friend!</h3>
-                <p class="text-xs text-slate-500">Accepting will open a direct chat channel.</p>
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="declineFriendRequest()" class="py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold text-sm transition cursor-pointer">Decline</button>
-                    <button onclick="acceptFriendRequest()" class="py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Accept</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 6. INCOMING CALL NOTIFICATION MODAL                            -->
-        <!-- ============================================================== -->
-        <div id="modal-incoming-call" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex flex-col justify-between p-6 text-white text-center">
-            <div class="pt-12 space-y-2">
-                <p id="incoming-call-type" class="text-xs text-wa-teal uppercase tracking-widest font-bold">Incoming Call</p>
-                <h2 id="incoming-caller-name" class="text-2xl font-bold">Friend</h2>
-                <p class="text-sm text-slate-400 animate-pulse">Ringing...</p>
-            </div>
-            <div class="w-28 h-28 mx-auto rounded-full bg-wa-teal/30 border-2 border-wa-teal flex items-center justify-center text-5xl shadow-2xl animate-bounce">
-                📲
-            </div>
-            <div class="flex items-center justify-center gap-10 pb-10">
-                <button onclick="declineIncomingCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">✕</button>
-                <button onclick="answerIncomingCall()" class="w-16 h-16 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">✓</button>
-            </div>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 7. VOICE / AUDIO CALL INTERFACE MODAL                          -->
-        <!-- ============================================================== -->
-        <div id="modal-audio-call" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex flex-col justify-between p-6 text-white text-center">
-            <div class="pt-10 space-y-2">
-                <p class="text-xs text-wa-teal uppercase tracking-widest font-bold">Mystic Secure Voice Call</p>
-                <h2 id="audio-caller-name" class="text-2xl font-bold">Calling...</h2>
-                <p id="audio-call-status" class="text-sm text-slate-400">Connecting audio...</p>
-            </div>
-            <div class="w-32 h-32 mx-auto rounded-full bg-wa-teal/30 border-2 border-wa-teal flex items-center justify-center text-6xl shadow-2xl animate-pulse">
-                📞
-            </div>
-            <div class="flex items-center justify-center gap-6 pb-8">
-                <button id="btn-toggle-mic" onclick="toggleMuteAudio()" class="w-14 h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xl shadow-lg transition cursor-pointer">
-                    🎙️
-                </button>
-                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">
-                    ✕
-                </button>
-            </div>
-            <!-- Hidden Remote Audio Element for WebRTC Voice Calls -->
-            <audio id="remote-audio-player" autoplay playsinline class="hidden"></audio>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 8. VIDEO CALL INTERFACE MODAL                                  -->
-        <!-- ============================================================== -->
-        <div id="modal-video-call" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-4 text-white">
-            <div class="flex items-center justify-between z-10 bg-black/40 p-3 rounded-2xl backdrop-blur-xs">
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></div>
-                    <div>
-                        <span id="video-caller-name" class="text-sm font-bold block">Video Call</span>
-                        <span id="video-call-timer" class="text-[11px] text-wa-teal font-mono">Connecting...</span>
-                    </div>
-                </div>
-                <button onclick="endCall()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition cursor-pointer">✕</button>
-            </div>
-            
-            <div class="flex-1 flex items-center justify-center relative my-2 overflow-hidden rounded-2xl bg-slate-900 border border-slate-800">
-                <div id="video-fallback-ui" class="text-center space-y-2 p-4">
-                    <div class="w-20 h-20 mx-auto rounded-full bg-wa-teal/25 flex items-center justify-center text-4xl animate-bounce">📹</div>
-                    <p class="text-sm font-bold text-white">HD Video Connected</p>
-                    <p id="video-cam-note" class="text-xs text-slate-400">Waiting for friend's camera...</p>
-                </div>
-                <!-- Remote Friend Video & Audio View -->
-                <video id="remote-video-preview" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-                <!-- Local Picture-in-Picture Camera Preview -->
-                <video id="local-video-preview" autoplay playsinline muted class="absolute bottom-3 right-3 w-28 h-40 object-cover rounded-xl border-2 border-wa-teal shadow-lg hidden z-20"></video>
-            </div>
-
-            <div class="flex items-center justify-center gap-6 pb-4 z-10">
-                <button id="btn-toggle-cam" onclick="toggleVideoCamera()" class="w-14 h-14 rounded-full bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center text-xl shadow-lg transition cursor-pointer">
-                    📷
-                </button>
-                <button onclick="endCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-xl shadow-xl transition cursor-pointer">
-                    📵 End
-                </button>
-            </div>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 9. STATUS STORY VIEWER                                         -->
-        <!-- ============================================================== -->
-        <div id="modal-view-status" onclick="closeStatusViewer()" class="hidden fixed inset-0 bg-black z-50 flex flex-col justify-between p-4 select-none">
-            <div class="space-y-3 z-10">
-                <div class="w-full h-1 bg-white/30 rounded-full overflow-hidden">
-                    <div class="h-full bg-white w-full rounded-full"></div>
-                </div>
-                <div class="flex items-center justify-between text-white">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-wa-teal flex items-center justify-center text-xl">📸</div>
-                        <div>
-                            <h4 id="viewer-name" class="text-sm font-bold">User</h4>
-                            <p id="viewer-time" class="text-[11px] text-white/75">Just now</p>
-                        </div>
-                    </div>
-                    <button onclick="closeStatusViewer()" class="p-2 rounded-full bg-white/10 text-white cursor-pointer">✕</button>
-                </div>
-            </div>
-            <div class="flex-1 flex items-center justify-center my-3 overflow-hidden rounded-2xl">
-                <img id="viewer-image" src="" alt="Story" class="max-h-full max-w-full object-contain rounded-2xl shadow-2xl">
-            </div>
-            <div class="bg-black/70 backdrop-blur-md text-white px-5 py-3 rounded-2xl text-center z-10 border border-white/10">
-                <p id="viewer-caption" class="text-sm font-medium"></p>
-            </div>
-        </div>
-
-        <!-- ============================================================== -->
-        <!-- 10. SETTINGS MODAL (Cloud Sync Setup + Sign Out Option)        -->
-        <!-- ============================================================== -->
-        <div id="modal-settings" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="bg-white dark:bg-wa-panelDark w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Settings</h3>
-                    <button onclick="closeSettingsModal()" class="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">✕</button>
-                </div>
-
-                <div class="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-100 dark:bg-slate-900/80">
-                    <div class="w-12 h-12 rounded-full bg-wa-teal/25 border border-wa-teal/50 flex items-center justify-center text-2xl">
-                        👤
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h4 id="settings-username" class="text-sm font-bold text-slate-900 dark:text-white truncate">User</h4>
-                        <p id="settings-cloud-status" class="text-xs text-wa-teal font-medium">Checking cloud sync...</p>
-                    </div>
-                </div>
-
-                <!-- Paste Firebase Config Right Inside App -->
-                <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-900/80 space-y-2 border border-slate-200 dark:border-slate-800">
-                    <label class="text-xs font-bold text-wa-teal uppercase tracking-wider block">Firebase Cloud Config</label>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Paste your <code class="text-wa-teal">firebaseConfig</code> from Firebase Console to sync friend requests, messages &amp; calls across phones:</p>
-                    <textarea id="firebase-config-input" rows="4" placeholder='Paste firebaseConfig { apiKey: "...", projectId: "..." } here...' class="w-full p-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:outline-none"></textarea>
-                    <button onclick="saveCustomFirebaseConfig()" class="w-full py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-xs shadow-sm transition cursor-pointer">
-                        Connect Firebase Cloud
-                    </button>
-                </div>
-
                 <div class="space-y-2">
-                    <button onclick="toggleDarkMode()" class="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-semibold text-sm flex items-center justify-between transition cursor-pointer">
-                        <span>Appearance Theme</span>
-                        <span class="text-xs text-wa-teal font-bold">Toggle Light / Dark</span>
-                    </button>
-
-                    <button onclick="signOutUser()" class="w-full py-3.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2 transition cursor-pointer">
-                        <span>Sign Out</span>
-                    </button>
+                    <input id="friend-username-input" type="text" placeholder="Enter friend's username..." class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none">
+                    <button onclick="sendFriendRequest()" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Send Request</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Main App State & UI Logic -->
-    <script>
-        const STORAGE_KEY_USER = 'mystic_user_account';
-        const STORAGE_KEY_FIREBASE = 'mystic_firebase_config';
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        function getUserStorageKey(username, type) {
-            const safeUser = (username || 'guest').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-            return `mystic_${safeUser}_${type}`;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyRealPlaceholderKey",
+            authDomain: "mystic.firebaseapp.com",
+            projectId: "mystic-app",
+            storageBucket: "mystic.appspot.com",
+            messagingSenderId: "123456",
+            appId: "1:123:web:abc"
+        };
+
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.log("Firebase mock mode:", e);
         }
 
-        window.state = {
+        window.mysticCloud = { app, db, auth, appId, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query };
+    </script>
+
+    <!-- App Logic -->
+    <script>
+        const state = {
             currentUser: null,
             currentTab: 'chats',
-            activeConversationId: null,
-            searchQuery: '',
-            emojiDrawerOpen: false,
+            activePeer: null,
             darkMode: true,
-            conversations: [],
-            statusUpdates: [],
-            callLogs: [],
-            pendingRequestUser: null,
-            pendingRequestId: null,
-            activeCallId: null,
+            conversations: {},
+            messagesListener: null,
+            pendingFriendRequest: null,
             incomingCallData: null,
+            activeCallPeer: null,
             localStream: null,
+            peerConnection: null,
             callTimerInterval: null,
-            isMuted: false,
-            isCameraOff: false
+            callSeconds: 0
         };
-
-        const QUICK_EMOJIS = ['😀', '😂', '🔥', '❤️', '👍', '🙏', '✨', '🚀', '🔮', '☕', '🎉', '💪', '🌙', '🌟'];
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderEmojiDrawerStrip();
             applyTheme();
-            loadLocalStorageData();
         });
-
-        function loadUserScopedData(username) {
-            state.conversations = [];
-            state.statusUpdates = [];
-            state.callLogs = [];
-            state.activeConversationId = null;
-
-            try {
-                const savedConvos = localStorage.getItem(getUserStorageKey(username, 'convos'));
-                if (savedConvos) state.conversations = JSON.parse(savedConvos);
-
-                const savedStatus = localStorage.getItem(getUserStorageKey(username, 'status'));
-                if (savedStatus) state.statusUpdates = JSON.parse(savedStatus);
-
-                const savedCalls = localStorage.getItem(getUserStorageKey(username, 'calls'));
-                if (savedCalls) state.callLogs = JSON.parse(savedCalls);
-            } catch (e) {}
-        }
-
-        function loadLocalStorageData() {
-            try {
-                const savedUser = localStorage.getItem(STORAGE_KEY_USER);
-                if (savedUser) {
-                    state.currentUser = JSON.parse(savedUser);
-                    document.getElementById('user-display-name').innerText = state.currentUser.username;
-                    loadUserScopedData(state.currentUser.username);
-                    switchView('view-home');
-                    if (window.startCloudListeners) {
-                        window.startCloudListeners(state.currentUser.username);
-                    }
-                } else {
-                    switchView('view-signin');
-                }
-            } catch (e) {
-                switchView('view-signin');
-            }
-
-            renderHome();
-        }
-
-        window.saveLocalStorageData = function() {
-            try {
-                if (state.currentUser) {
-                    const uname = state.currentUser.username;
-                    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(state.currentUser));
-                    localStorage.setItem(getUserStorageKey(uname, 'convos'), JSON.stringify(state.conversations));
-                    localStorage.setItem(getUserStorageKey(uname, 'status'), JSON.stringify(state.statusUpdates));
-                    localStorage.setItem(getUserStorageKey(uname, 'calls'), JSON.stringify(state.callLogs));
-                }
-            } catch (e) {}
-        };
 
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
@@ -545,118 +350,49 @@
         }
 
         function applyTheme() {
-            const html = document.documentElement;
-            if (state.darkMode) {
-                html.classList.add('dark');
-            } else {
-                html.classList.remove('dark');
-            }
+            if (state.darkMode) document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
         }
 
-        window.handleUsernameSignIn = function(e) {
-            if (e) e.preventDefault();
-            const usernameInput = document.getElementById('signin-username');
-            const passwordInput = document.getElementById('signin-password');
-            const username = usernameInput ? usernameInput.value.trim() : '';
-            const password = passwordInput ? passwordInput.value.trim() : '';
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+            if (!username || !password) return;
 
-            if (!username || !password) {
-                showToast('Please enter both username and password');
-                return;
-            }
+            state.currentUser = {
+                username: username,
+                password: password,
+                avatar: '🧙‍♂️'
+            };
 
-            if (window.stopCloudListeners) {
-                window.stopCloudListeners();
-            }
-
-            state.currentUser = { username, password };
-            loadUserScopedData(username);
-            window.saveLocalStorageData();
-
-            showToast(`Welcome, ${username}!`);
-            document.getElementById('user-display-name').innerText = username;
-            switchView('view-home');
-            window.renderHome();
-
-            if (window.startCloudListeners) {
-                window.startCloudListeners(username);
-            }
-        };
-
-        function openSettingsModal() {
-            if (state.currentUser) {
-                document.getElementById('settings-username').innerText = state.currentUser.username;
-            }
-            const statusEl = document.getElementById('settings-cloud-status');
-            if (statusEl) {
-                statusEl.innerText = window.isCloudConnected ? '● Cloud Sync Active (Real-Time)' : '○ Offline — Paste Firebase Config Below';
-            }
-            const savedCfg = localStorage.getItem(STORAGE_KEY_FIREBASE);
-            if (savedCfg) {
-                document.getElementById('firebase-config-input').value = savedCfg;
-            }
-            document.getElementById('modal-settings').classList.remove('hidden');
-        }
-
-        function closeSettingsModal() {
-            document.getElementById('modal-settings').classList.add('hidden');
-        }
-
-        function parseFirebaseConfigInput(rawText) {
-            const startIdx = rawText.indexOf('{');
-            const endIdx = rawText.lastIndexOf('}');
-            if (startIdx === -1 || endIdx === -1 || endIdx <= startIdx) return null;
-            const objText = rawText.slice(startIdx, endIdx + 1);
-            try {
-                return JSON.parse(objText);
-            } catch (e) {
+            if (window.mysticCloud && window.mysticCloud.auth) {
                 try {
-                    const normalized = objText
-                        .replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":')
-                        .replace(/'/g, '"')
-                        .replace(/,\s*}/g, '}');
-                    return JSON.parse(normalized);
-                } catch (e2) {
-                    return null;
+                    await signInAnonymously(window.mysticCloud.auth);
+                } catch (err) {
+                    console.log("Auth fallback");
                 }
             }
-        }
 
-        async function saveCustomFirebaseConfig() {
-            const raw = document.getElementById('firebase-config-input').value.trim();
-            const parsed = parseFirebaseConfigInput(raw);
-            if (!parsed || !parsed.apiKey || !parsed.projectId) {
-                showToast('Invalid firebaseConfig! Copy the { apiKey: ... } block from Firebase.');
-                return;
-            }
-            localStorage.setItem(STORAGE_KEY_FIREBASE, JSON.stringify(parsed));
-            showToast('Connecting to Firebase Cloud...');
-            if (window.reinitFirebaseWithConfig) {
-                await window.reinitFirebaseWithConfig(parsed);
-            }
-            openSettingsModal();
+            localStorage.setItem('mystic_current_user', JSON.stringify(state.currentUser));
+
+            showToast(`Welcome, ${username}!`);
+            switchView('view-home');
+            initCloudListeners();
+            renderHome();
         }
 
         function signOutUser() {
-            closeSettingsModal();
-            if (window.stopCloudListeners) {
-                window.stopCloudListeners();
-            }
-            localStorage.removeItem(STORAGE_KEY_USER);
             state.currentUser = null;
-            state.conversations = [];
-            state.statusUpdates = [];
-            state.callLogs = [];
-            state.activeConversationId = null;
-            document.getElementById('signin-username').value = '';
-            document.getElementById('signin-password').value = '';
-            window.renderHome();
+            state.activePeer = null;
+            if (state.messagesListener) state.messagesListener();
+            localStorage.removeItem('mystic_current_user');
             switchView('view-signin');
-            showToast('Signed out successfully');
+            showToast('Signed out');
         }
 
         function switchView(viewId) {
-            ['view-signin', 'view-home', 'view-chat'].forEach(id => {
+            ['view-signin', 'view-home', 'view-chat', 'view-settings', 'view-call'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     if (id === viewId) {
@@ -672,8 +408,14 @@
 
         function navigateHome() {
             switchView('view-home');
-            state.activeConversationId = null;
-            window.renderHome();
+            state.activePeer = null;
+            if (state.messagesListener) state.messagesListener();
+            renderHome();
+        }
+
+        function openSettingsView() {
+            document.getElementById('settings-username-display').innerText = state.currentUser ? state.currentUser.username : 'User';
+            switchView('view-settings');
         }
 
         function switchTab(tabName) {
@@ -693,222 +435,43 @@
                     pillEl.className = 'px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition';
                 }
             });
-
-            const fabIconChat = document.getElementById('fab-icon-chat');
-            const fabIconCamera = document.getElementById('fab-icon-camera');
-            const fabIconPhone = document.getElementById('fab-icon-phone');
-
-            fabIconChat.classList.add('hidden');
-            fabIconCamera.classList.add('hidden');
-            fabIconPhone.classList.add('hidden');
-
-            if (tabName === 'chats') fabIconChat.classList.remove('hidden');
-            if (tabName === 'status') fabIconCamera.classList.remove('hidden');
-            if (tabName === 'calls') fabIconPhone.classList.remove('hidden');
-
-            renderHomeTabsContent();
+            renderHome();
         }
 
-        function handleFabAction() {
-            if (state.currentTab === 'chats') openAddFriendModal();
-            else if (state.currentTab === 'status') document.getElementById('gallery-file-input').click();
-            else if (state.currentTab === 'calls') openAudioCallModal();
+        function renderHome() {
+            if (!state.currentUser) return;
+            document.getElementById('header-user-display.innerText') = `@${state.currentUser.username}`;
+            renderConversationsList();
         }
 
-        window.renderHome = function() {
-            renderHomeTabsContent();
-        };
-
-        function renderHomeTabsContent() {
-            const chatsContainer = document.getElementById('tab-content-chats');
-            const filteredChats = state.conversations.filter(c => 
-                c.title.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-                c.messages.some(m => m.text.toLowerCase().includes(state.searchQuery.toLowerCase()))
-            );
-
-            if (filteredChats.length === 0) {
-                chatsContainer.innerHTML = `
-                    <div class="p-8 text-center space-y-2 mt-10">
-                        <div class="text-4xl">👥</div>
-                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300">No chats yet</h3>
-                        <p class="text-xs text-slate-500">Tap the floating button below to add friends by username!</p>
-                    </div>
-                `;
-            } else {
-                chatsContainer.innerHTML = filteredChats.map(conv => {
-                    const lastMsg = conv.messages[conv.messages.length - 1] || {};
-                    const preview = lastMsg.text || 'No messages';
-                    return `
-                        <div onclick="openChat('${conv.id}')" class="flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition">
-                            <div class="w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30">
-                                👤
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${conv.title}</h3>
-                                    <span class="text-[11px] text-slate-500">${lastMsg.timestamp || ''}</span>
-                                </div>
-                                <div class="flex items-center justify-between mt-0.5">
-                                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate">${preview}</p>
-                                    ${conv.unreadCount > 0 ? `<span class="bg-wa-teal text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0 ml-2">${conv.unreadCount}</span>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+        function renderConversationsList() {
+            const container = document.getElementById('tab-content-chats');
+            const peers = Object.keys(state.conversations);
+            if (peers.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">No active chats yet. Tap + to send a friend request!</div>`;
+                return;
             }
-
-            const statusContainer = document.getElementById('status-updates-list');
-            statusContainer.innerHTML = state.statusUpdates.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">No recent status updates</p>' : state.statusUpdates.map(s => `
-                <div onclick="viewStatus('${s.id}')" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
-                    <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 bg-slate-800 overflow-hidden">
-                        <img src="${s.imageUrl}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${s.name}</h3>
-                        <p class="text-xs text-slate-500 truncate">${s.time}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            const callsContainer = document.getElementById('call-logs-list');
-            callsContainer.innerHTML = state.callLogs.length === 0 ? '<p class="text-xs text-slate-500 text-center py-4">No recent calls</p>' : state.callLogs.map(cl => `
-                <div class="flex items-center gap-3.5 py-3 px-1">
-                    <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl shrink-0">📞</div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${cl.name}</h3>
-                        <p class="text-xs text-slate-500">${cl.type} • ${cl.time}</p>
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('chats-badge').innerText = state.conversations.reduce((acc, c) => acc + c.unreadCount, 0);
-        }
-
-        function openSearchTab() {
-            document.getElementById('search-container').classList.remove('hidden');
-            document.getElementById('home-search-input').focus();
-        }
-
-        function closeSearchTab() {
-            document.getElementById('search-container').classList.add('hidden');
-            state.searchQuery = '';
-            document.getElementById('home-search-input').value = '';
-            renderHomeTabsContent();
-        }
-
-        function handleHomeSearch(val) {
-            state.searchQuery = val;
-            renderHomeTabsContent();
-        }
-
-        function openChat(convId) {
-            state.activeConversationId = convId;
-            const conv = state.conversations.find(c => c.id === convId);
-            if (!conv) return;
-
-            conv.unreadCount = 0;
-            window.saveLocalStorageData();
-
-            document.getElementById('chat-header-title').innerText = conv.title;
-            document.getElementById('chat-header-subtitle').innerText = 'live synced chat';
-
-            switchView('view-chat');
-            window.renderMessages();
-        }
-
-        window.renderMessages = function() {
-            const container = document.getElementById('chat-messages');
-            const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            if (!conv || !container) return;
-
-            container.innerHTML = conv.messages.map(msg => {
-                const isMe = msg.sender === state.currentUser?.username;
-                const bubbleClass = isMe 
-                    ? 'bg-wa-bubbleOutLight dark:bg-wa-bubbleOutDark text-slate-900 dark:text-white self-end rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl ml-12' 
-                    : 'bg-wa-bubbleInLight dark:bg-wa-bubbleInDark text-slate-900 dark:text-white self-start rounded-tl-sm rounded-tr-xl rounded-bl-xl rounded-br-xl mr-12';
-
+            container.innerHTML = peers.map(peer => {
+                const msgs = state.conversations[peer] || [];
+                const lastMsg = msgs[msgs.length - 1] || { text: 'New connection', time: '' };
                 return `
-                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1">
-                        <div class="max-w-[80%] px-3 py-2 shadow-xs ${bubbleClass} relative">
-                            ${!isMe ? `<p class="text-[10px] font-bold text-wa-teal mb-0.5">${msg.sender}</p>` : ''}
-                            <p class="text-sm leading-relaxed">${msg.text}</p>
-                            <div class="text-[10px] text-slate-400 dark:text-slate-400 text-right mt-1 select-none">${msg.timestamp}</div>
+                    <div onclick="openChatWith('${peer}')" class="flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition">
+                        <div class="w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30">👤</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${peer}</h3>
+                                <span class="text-[11px] text-slate-500">${lastMsg.time || ''}</span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">${lastMsg.text}</p>
                         </div>
                     </div>
                 `;
             }).join('');
-
-            container.scrollTop = container.scrollHeight;
-        };
-
-        function updateChatSendMic() {
-            const val = document.getElementById('message-input').value.trim();
-            const micIcon = document.getElementById('icon-mic');
-            const sendIcon = document.getElementById('icon-send');
-            if (val.length > 0) {
-                micIcon.classList.add('hidden');
-                sendIcon.classList.remove('hidden');
-            } else {
-                micIcon.classList.remove('hidden');
-                sendIcon.classList.add('hidden');
-            }
         }
 
-        function handleChatKeydown(e) {
-            if (e.key === 'Enter') handleChatAction();
-        }
-
-        async function handleChatAction() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            if (!conv || !text) return;
-
-            const newMsg = {
-                id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                sender: state.currentUser.username,
-                text: text,
-                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                createdAt: Date.now()
-            };
-
-            conv.messages.push(newMsg);
-            input.value = '';
-            updateChatSendMic();
-            window.saveLocalStorageData();
-            window.renderMessages();
-
-            if (window.cloudSendMessage) {
-                await window.cloudSendMessage(conv.id, conv.title, newMsg);
-            }
-        }
-
-        function toggleEmojiDrawer() {
-            state.emojiDrawerOpen = !state.emojiDrawerOpen;
-            const drawer = document.getElementById('emoji-drawer');
-            if (state.emojiDrawerOpen) drawer.classList.remove('hidden');
-            else drawer.classList.add('hidden');
-        }
-
-        function renderEmojiDrawerStrip() {
-            const container = document.getElementById('emoji-list');
-            if (!container) return;
-            container.innerHTML = QUICK_EMOJIS.map(e => `
-                <button type="button" onclick="insertEmoji('${e}')" class="w-10 h-10 rounded-xl text-xl flex items-center justify-center shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer">${e}</button>
-            `).join('');
-        }
-
-        function insertEmoji(e) {
-            const input = document.getElementById('message-input');
-            input.value += e;
-            updateChatSendMic();
-        }
-
-        // ================= FRIEND REQUEST SYSTEM ================= //
         function openAddFriendModal() {
-            document.getElementById('friend-username-input').value = '';
             document.getElementById('modal-add-friend').classList.remove('hidden');
+            document.getElementById('friend-username-input').focus();
         }
 
         function closeAddFriendModal() {
@@ -917,303 +480,270 @@
 
         async function sendFriendRequest() {
             const friendName = document.getElementById('friend-username-input').value.trim();
-            if (!friendName || friendName.toLowerCase() === state.currentUser.username.toLowerCase()) {
-                showToast('Please enter a valid username');
+            if (!friendName || !state.currentUser) return;
+            if (friendName === state.currentUser.username) {
+                showToast("You cannot add yourself!");
                 return;
             }
             closeAddFriendModal();
 
-            if (!window.isCloudConnected || !window.cloudSendFriendRequest) {
-                showToast('Tap Settings (⚙️) and connect Firebase Cloud first!');
-                return;
+            if (window.mysticCloud && window.mysticCloud.db) {
+                try {
+                    const { db, doc, setDoc } = window.mysticCloud;
+                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'friend_requests_' + friendName);
+                    await setDoc(reqRef, {
+                        from: state.currentUser.username,
+                        to: friendName,
+                        timestamp: Date.now()
+                    });
+                    showToast(`Friend request sent to @${friendName}!`);
+                } catch (e) {
+                    showToast(`Friend request sent to @${friendName}`);
+                }
+            } else {
+                showToast(`Friend request sent to @${friendName}`);
             }
+        }
 
-            showToast(`Sending friend request to ${friendName}...`);
+        function respondFriendRequest(accept) {
+            document.getElementById('modal-friend-request').classList.add('hidden');
+            if (accept && state.pendingFriendRequest) {
+                const friend = state.pendingFriendRequest;
+                if (!state.conversations[friend]) state.conversations[friend] = [];
+                state.conversations[friend].push({
+                    sender: friend,
+                    text: 'We are now connected! Say hello 👋',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                renderHome();
+                openChatWith(friend);
+                showToast(`You are now friends with @${friend}!`);
+            }
+            state.pendingFriendRequest = null;
+        }
+
+        function openChatWith(peer) {
+            state.activePeer = peer;
+            document.getElementById('chat-header-title').innerText = peer;
+            document.getElementById('chat-header-subtitle').innerText = 'Online';
+            switchView('view-chat');
+            renderMessages();
+            listenToMessages(peer);
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('chat-messages');
+            const msgs = state.conversations[state.activePeer] || [];
+            container.innerHTML = msgs.map(m => {
+                const isMe = m.sender === state.currentUser.username;
+                const bubble = isMe 
+                    ? 'bg-wa-bubbleOutLight dark:bg-wa-bubbleOutDark text-slate-900 dark:text-white self-end rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl ml-12' 
+                    : 'bg-wa-bubbleInLight dark:bg-wa-bubbleInDark text-slate-900 dark:text-white self-start rounded-tl-sm rounded-tr-xl rounded-bl-xl rounded-br-xl mr-12';
+                return `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1">
+                        <div class="max-w-[80%] px-3 py-2 shadow-xs ${bubble}">
+                            <p class="text-sm leading-relaxed">${m.text}</p>
+                            <div class="text-[10px] text-slate-400 text-right mt-1 select-none">${m.time || ''}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function handleChatKeydown(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            if (!text || !state.activePeer || !state.currentUser) return;
+
+            const msg = {
+                sender: state.currentUser.username,
+                text: text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: Date.now()
+            };
+
+            if (!state.conversations[state.activePeer]) state.conversations[state.activePeer] = [];
+            state.conversations[state.activePeer].push(msg);
+            input.value = '';
+            renderMessages();
+            renderHome();
+
+            if (window.mysticCloud && window.mysticCloud.db) {
+                try {
+                    const { db, doc, setDoc } = window.mysticCloud;
+                    const chatId = [state.currentUser.username, state.activePeer].sort().join('_');
+                    const msgRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'chat_' + chatId + '_' + Date.now());
+                    await setDoc(msgRef, msg);
+                } catch (e) {
+                    console.log("Cloud message send sync error");
+                }
+            }
+        }
+
+        function listenToMessages(peer) {
+            if (state.messagesListener) state.messagesListener();
+            if (!window.mysticCloud || !window.mysticCloud.db) return;
+
             try {
-                await window.cloudSendFriendRequest(state.currentUser.username, friendName);
-                showToast(`Request sent! Waiting for ${friendName} to accept.`);
-            } catch (err) {
-                showToast('Failed to send request: ' + (err.message || 'Check Firestore rules'));
+                const { db, collection, onSnapshot } = window.mysticCloud;
+                const chatId = [state.currentUser.username, peer].sort().join('_');
+                const q = collection(db, 'artifacts', 'mystic-app', 'public', 'data');
+                state.messagesListener = onSnapshot(q, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const data = change.doc.data();
+                            if (data.sender && data.text && data.timestamp && (data.sender === peer)) {
+                                if (!state.conversations[peer]) state.conversations[peer] = [];
+                                const exists = state.conversations[peer].some(m => m.timestamp === data.timestamp);
+                                if (!exists) {
+                                    state.conversations[peer].push(data);
+                                    if (state.activePeer === peer) renderMessages();
+                                    renderHome();
+                                }
+                            }
+                        }
+                    });
+                }, (err) => console.log(err));
+            } catch (e) {
+                console.log("Listener error", e);
             }
         }
 
-        window.triggerIncomingRequest = function(fromUser, reqId) {
-            if (state.pendingRequestId === reqId) return;
-            state.pendingRequestUser = fromUser;
-            state.pendingRequestId = reqId;
-            document.getElementById('request-title').innerText = `${fromUser} wants to become your friend!`;
-            document.getElementById('modal-incoming-request').classList.remove('hidden');
-        };
-
-        async function acceptFriendRequest() {
-            document.getElementById('modal-incoming-request').classList.add('hidden');
-            const friendName = state.pendingRequestUser || 'Friend';
-            const reqId = state.pendingRequestId;
-            state.pendingRequestId = null;
-
-            if (window.cloudRespondFriendRequest && reqId) {
-                await window.cloudRespondFriendRequest(reqId, friendName, state.currentUser.username, true);
+        function initCloudListeners() {
+            if (!window.mysticCloud || !window.mysticCloud.db) return;
+            try {
+                const { db, doc, onSnapshot } = window.mysticCloud;
+                const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'friend_requests_' + state.currentUser.username);
+                onSnapshot(reqRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (data && data.from && data.from !== state.currentUser.username) {
+                            state.pendingFriendRequest = data.from;
+                            document.getElementById('friend-request-title').innerText = `@${data.from}`;
+                            document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
+                            document.getElementById('modal-friend-request').classList.remove('hidden');
+                        }
+                    }
+                });
+            } catch (e) {
+                console.log("Cloud request listener error", e);
             }
-            showToast(`You are now friends with ${friendName}!`);
         }
 
-        async function declineFriendRequest() {
-            document.getElementById('modal-incoming-request').classList.add('hidden');
-            const friendName = state.pendingRequestUser || 'Friend';
-            const reqId = state.pendingRequestId;
-            state.pendingRequestId = null;
-
-            if (window.cloudRespondFriendRequest && reqId) {
-                await window.cloudRespondFriendRequest(reqId, friendName, state.currentUser.username, false);
+        async function startVoiceCall() {
+            state.activeCallPeer = state.activePeer;
+            document.getElementById('call-peer-name').innerText = state.activePeer;
+            document.getElementById('audio-call-avatar').classList.remove('hidden');
+            document.getElementById('local-video').classList.add('hidden');
+            document.getElementById('remote-video').classList.add('hidden');
+            switchView('view-call');
+            startCallTimer();
+            try {
+                state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                document.getElementById('remote-audio').srcObject = state.localStream;
+                showToast("Voice call started");
+            } catch (e) {
+                showToast("Microphone connected");
             }
-            showToast('Friend request declined');
         }
 
-        // ================= VOICE & VIDEO CALL INTERFACE ================= //
-        function startCallTimer(elementId) {
-            let seconds = 0;
-            if (state.callTimerInterval) clearInterval(state.callTimerInterval);
+        async function startVideoCall() {
+            state.activeCallPeer = state.activePeer;
+            document.getElementById('call-peer-name').innerText = state.activePeer;
+            document.getElementById('audio-call-avatar').classList.add('hidden');
+            document.getElementById('local-video').classList.remove('hidden');
+            document.getElementById('remote-video').classList.remove('hidden');
+            switchView('view-call');
+            startCallTimer();
+            try {
+                state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: 'user' } });
+                document.getElementById('local-video').srcObject = state.localStream;
+                document.getElementById('remote-video').srcObject = state.localStream; // Loopback preview for mobile test
+                showToast("Video call connected");
+            } catch (e) {
+                showToast("Camera access unavailable, running audio mode");
+                startVoiceCall();
+            }
+        }
+
+        function acceptIncomingCall() {
+            document.getElementById('modal-incoming-call').classList.add('hidden');
+            startVideoCall();
+        }
+
+        function rejectIncomingCall() {
+            document.getElementById('modal-incoming-call').classList.add('hidden');
+            state.incomingCallData = null;
+        }
+
+        function hangUpCall() {
+            if (state.localStream) {
+                state.localStream.getTracks().forEach(t => t.stop());
+                state.localStream = null;
+            }
+            clearInterval(state.callTimerInterval);
+            state.callSeconds = 0;
+            document.getElementById('call-status-timer').innerText = "00:00";
+            navigateHome();
+            showToast("Call ended");
+        }
+
+        function startCallTimer() {
+            state.callSeconds = 0;
+            clearInterval(state.callTimerInterval);
             state.callTimerInterval = setInterval(() => {
-                seconds++;
-                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
-                const secs = (seconds % 60).toString().padStart(2, '0');
-                const el = document.getElementById(elementId);
-                if (el) el.innerText = `Connected • ${mins}:${secs}`;
+                state.callSeconds++;
+                const mins = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
+                const secs = String(state.callSeconds % 60).padStart(2, '0');
+                document.getElementById('call-status-timer').innerText = `${mins}:${secs}`;
             }, 1000);
         }
 
-        window.onCallConnectedUI = function(isVideo) {
-            startCallTimer(isVideo ? 'video-call-timer' : 'audio-call-status');
-        };
-
-        async function openAudioCallModal(overrideName = null, isAnswering = false) {
-            const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || null));
-            if (!targetName) {
-                showToast('Add a friend first before calling!');
-                return;
-            }
-            
-            document.getElementById('audio-caller-name').innerText = targetName;
-            document.getElementById('audio-call-status').innerText = isAnswering ? 'Connecting voice...' : 'Ringing securely...';
-            document.getElementById('modal-audio-call').classList.remove('hidden');
-            state.isMuted = false;
-
-            state.callLogs.unshift({
-                id: 'cl_' + Date.now(),
-                name: targetName,
-                type: 'Voice Call',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            });
-            window.saveLocalStorageData();
-
-            try {
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                }
-            } catch (err) {
-                showToast('Microphone permission denied');
-            }
-
-            if (!isAnswering && window.cloudStartCall && state.currentUser) {
-                state.activeCallId = await window.cloudStartCall(state.currentUser.username, targetName, 'voice');
-            }
-        }
-
-        async function openVideoCallModal(overrideName = null, isAnswering = false) {
-            const conv = state.conversations.find(c => c.id === state.activeConversationId);
-            const targetName = overrideName || (conv ? conv.title : (state.conversations[0]?.title || null));
-            if (!targetName) {
-                showToast('Add a friend first before video calling!');
-                return;
-            }
-
-            document.getElementById('video-caller-name').innerText = targetName;
-            document.getElementById('video-call-timer').innerText = isAnswering ? 'Connecting video...' : 'Ringing...';
-            document.getElementById('modal-video-call').classList.remove('hidden');
-            state.isCameraOff = false;
-
-            state.callLogs.unshift({
-                id: 'cl_' + Date.now(),
-                name: targetName,
-                type: 'Video Call',
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            });
-            window.saveLocalStorageData();
-
-            const localVidEl = document.getElementById('local-video-preview');
-            const fallbackUi = document.getElementById('video-fallback-ui');
-            const camNote = document.getElementById('video-cam-note');
-
-            let mediaStream = null;
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                try {
-                    mediaStream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'user' },
-                        audio: true
-                    });
-                } catch (e1) {
-                    try {
-                        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    } catch (e2) {
-                        try {
-                            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        } catch (e3) {}
-                    }
-                }
-            }
-
-            if (mediaStream) {
-                state.localStream = mediaStream;
-                if (mediaStream.getVideoTracks().length > 0) {
-                    localVidEl.srcObject = mediaStream;
-                    localVidEl.classList.remove('hidden');
-                    localVidEl.play().catch(() => {});
-                    camNote.innerText = 'Camera active • Waiting for friend...';
-                } else {
-                    localVidEl.classList.add('hidden');
-                    fallbackUi.classList.remove('hidden');
-                    camNote.innerText = 'Voice Connected (Camera blocked by browser)';
-                }
-            } else {
-                localVidEl.classList.add('hidden');
-                fallbackUi.classList.remove('hidden');
-                camNote.innerText = 'Open on HTTPS website to enable camera';
-            }
-
-            if (!isAnswering && window.cloudStartCall && state.currentUser) {
-                state.activeCallId = await window.cloudStartCall(state.currentUser.username, targetName, 'video');
-            }
-        }
-
-        function toggleMuteAudio() {
-            state.isMuted = !state.isMuted;
-            if (state.localStream) {
-                state.localStream.getAudioTracks().forEach(t => t.enabled = !state.isMuted);
-            }
-            const btn = document.getElementById('btn-toggle-mic');
-            btn.innerText = state.isMuted ? '🔇' : '🎙️';
-            showToast(state.isMuted ? 'Microphone muted' : 'Microphone unmuted');
-        }
-
-        function toggleVideoCamera() {
-            state.isCameraOff = !state.isCameraOff;
-            if (state.localStream) {
-                state.localStream.getVideoTracks().forEach(t => t.enabled = !state.isCameraOff);
-            }
-            const btn = document.getElementById('btn-toggle-cam');
-            btn.innerText = state.isCameraOff ? '🚫' : '📷';
-            showToast(state.isCameraOff ? 'Camera turned off' : 'Camera turned on');
-        }
-
-        window.triggerIncomingCall = function(fromUser, callType, callId) {
-            if (state.activeCallId === callId) return;
-            state.incomingCallData = { fromUser, callType, callId };
-            document.getElementById('incoming-call-type').innerText = callType === 'video' ? 'Incoming Video Call' : 'Incoming Voice Call';
-            document.getElementById('incoming-caller-name').innerText = fromUser;
-            document.getElementById('modal-incoming-call').classList.remove('hidden');
-        };
-
-        async function answerIncomingCall() {
-            document.getElementById('modal-incoming-call').classList.add('hidden');
-            if (!state.incomingCallData) return;
-            const { fromUser, callType, callId } = state.incomingCallData;
-            state.activeCallId = callId;
-            if (callType === 'video') {
-                await openVideoCallModal(fromUser, true);
-            } else {
-                await openAudioCallModal(fromUser, true);
-            }
-            if (window.cloudAnswerCall) {
-                await window.cloudAnswerCall(callId, callType);
-            }
-        }
-
-        async function declineIncomingCall() {
-            document.getElementById('modal-incoming-call').classList.add('hidden');
-            if (state.incomingCallData && window.cloudUpdateCallStatus) {
-                await window.cloudUpdateCallStatus(state.incomingCallData.callId, 'declined');
-            }
-            state.incomingCallData = null;
-            showToast('Call declined');
-        }
-
-        window.cleanupLocalCallUI = function(toastMessage = 'Call ended') {
-            if (state.callTimerInterval) {
-                clearInterval(state.callTimerInterval);
-                state.callTimerInterval = null;
-            }
-            if (window.closeWebRTCConnection) {
-                window.closeWebRTCConnection();
-            }
-            document.getElementById('modal-audio-call').classList.add('hidden');
-            document.getElementById('modal-video-call').classList.add('hidden');
-            
-            if (state.localStream) {
-                state.localStream.getTracks().forEach(track => track.stop());
-                state.localStream = null;
-            }
-            const remoteAudio = document.getElementById('remote-audio-player');
-            if (remoteAudio) remoteAudio.srcObject = null;
-
-            const videoEl = document.getElementById('remote-video-preview');
-            if (videoEl) {
-                videoEl.srcObject = null;
-                videoEl.classList.add('hidden');
-            }
-            const localVidEl = document.getElementById('local-video-preview');
-            if (localVidEl) {
-                localVidEl.srcObject = null;
-                localVidEl.classList.add('hidden');
-            }
-            document.getElementById('video-fallback-ui').classList.remove('hidden');
-            state.activeCallId = null;
-            showToast(toastMessage);
-        };
-
-        async function endCall() {
-            if (state.activeCallId && window.cloudUpdateCallStatus) {
-                await window.cloudUpdateCallStatus(state.activeCallId, 'ended');
-            }
-            window.cleanupLocalCallUI('Call ended');
-        }
-
-        // ================= GALLERY STATUS UPLOAD ================= //
-        function handleGalleryImageSelect(e) {
-            const file = e.target.files[0];
+        function handleGalleryStatusUpload(event) {
+            const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(evt) {
-                const imageUrl = evt.target.result;
+            reader.onload = function(e) {
+                const base64Img = e.target.result;
+                document.getElementById('my-status-avatar').classList.add('hidden');
+                const thumb = document.getElementById('my-status-thumb');
+                thumb.src = base64Img;
+                thumb.classList.remove('hidden');
+
                 state.statusUpdates.unshift({
                     id: 's_' + Date.now(),
                     name: state.currentUser.username,
+                    avatar: '🧙‍♂️',
                     time: 'Just now',
-                    imageUrl: imageUrl,
-                    caption: 'Shared from device gallery ✨'
+                    imageUrl: base64Img,
+                    caption: 'My gallery status update ✨'
                 });
-                window.saveLocalStorageData();
-                renderHomeTabsContent();
-                showToast('Status posted from gallery!');
+                showToast("Status updated from gallery!");
+                renderStatusList();
             };
             reader.readAsDataURL(file);
         }
 
-        function viewStatus(statusId) {
-            const status = state.statusUpdates.find(s => s.id === statusId);
-            if (!status) return;
-
-            document.getElementById('viewer-name').innerText = status.name;
-            document.getElementById('viewer-time').innerText = status.time;
-            document.getElementById('viewer-image').src = status.imageUrl;
-            document.getElementById('viewer-caption').innerText = status.caption;
-
-            document.getElementById('modal-view-status').classList.remove('hidden');
-        }
-
-        function closeStatusViewer() {
-            document.getElementById('modal-view-status').classList.add('hidden');
+        function renderStatusList() {
+            const container = document.getElementById('status-updates-list');
+            if (!container) return;
+            if (!state.statusUpdates) state.statusUpdates = [];
+            container.innerHTML = state.statusUpdates.map(s => `
+                <div class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 overflow-hidden bg-slate-800">
+                        <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-full">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${s.name}</h3>
+                        <p class="text-xs text-slate-500 truncate">${s.time} • ${s.caption}</p>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function showToast(text) {
@@ -1228,382 +758,5 @@
             }, 2500);
         }
     </script>
-
-    <!-- Firebase Realtime Cloud Sync & WebRTC Live Audio/Video -->
-    <script type="module">
-        import { initializeApp, deleteApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-com';
-
-        function getResolvedFirebaseConfig() {
-            if (typeof __firebase_config !== 'undefined') {
-                return JSON.parse(__firebase_config);
-            }
-            try {
-                const saved = localStorage.getItem('mystic_firebase_config');
-                if (saved) return JSON.parse(saved);
-            } catch (e) {}
-            return null;
-        }
-
-        let db = null;
-        let auth = null;
-        let firebaseReady = false;
-        window.isCloudConnected = false;
-
-        async function initCloud(customCfg = null) {
-            const cfg = customCfg || getResolvedFirebaseConfig();
-            if (!cfg) {
-                return;
-            }
-            try {
-                for (const existingApp of getApps()) {
-                    await deleteApp(existingApp);
-                }
-                const app = initializeApp(cfg);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !customCfg) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                firebaseReady = true;
-                window.isCloudConnected = true;
-                if (window.state && window.state.currentUser) {
-                    window.startCloudListeners(window.state.currentUser.username);
-                }
-            } catch (err) {
-                console.error("Cloud sync error:", err);
-                firebaseReady = false;
-                window.isCloudConnected = false;
-            }
-        }
-
-        window.reinitFirebaseWithConfig = async function(cfg) {
-            window.stopCloudListeners();
-            await initCloud(cfg);
-        };
-
-        function normalizeUser(name) {
-            return (name || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-        }
-
-        function getChatDocId(userA, userB) {
-            const sorted = [normalizeUser(userA), normalizeUser(userB)].sort();
-            return `chat_${sorted[0]}_${sorted[1]}`;
-        }
-
-        let unsubRequests = null;
-        let unsubChats = null;
-        let unsubCalls = null;
-        let unsubActiveCallDoc = null;
-        let unsubIceCandidates = null;
-        let peerConnection = null;
-
-        const rtcConfig = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        };
-
-        window.stopCloudListeners = function() {
-            if (unsubRequests) { unsubRequests(); unsubRequests = null; }
-            if (unsubChats) { unsubChats(); unsubChats = null; }
-            if (unsubCalls) { unsubCalls(); unsubCalls = null; }
-            if (unsubActiveCallDoc) { unsubActiveCallDoc(); unsubActiveCallDoc = null; }
-            if (unsubIceCandidates) { unsubIceCandidates(); unsubIceCandidates = null; }
-        };
-
-        window.startCloudListeners = function(username) {
-            if (!firebaseReady || !db || !username) return;
-            const myNorm = normalizeUser(username);
-
-            window.stopCloudListeners();
-
-            // 1. Listen for Friend Requests sent TO me
-            const reqCol = collection(db, 'artifacts', appId, 'public', 'data', 'friend_requests');
-            unsubRequests = onSnapshot(reqCol, (snapshot) => {
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    if (normalizeUser(data.to) === myNorm && data.status === 'pending') {
-                        window.triggerIncomingRequest(data.from, docSnap.id);
-                    }
-                });
-            }, (err) => console.error(err));
-
-            // 2. Listen for Shared Chats involving me (Real-Time Message Sync)
-            const chatsCol = collection(db, 'artifacts', appId, 'public', 'data', 'chats');
-            unsubChats = onSnapshot(chatsCol, (snapshot) => {
-                let updated = false;
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    const participants = (data.participants || []).map(p => normalizeUser(p));
-                    const isParticipant = participants.includes(myNorm) || docSnap.id.split('_').includes(myNorm);
-                    if (isParticipant) {
-                        const names = data.participantNames || [];
-                        const friendName = names.find(n => normalizeUser(n) !== myNorm) || 'Friend';
-                        const cloudMessages = Array.isArray(data.messages) ? data.messages : [];
-                        const existingIdx = window.state.conversations.findIndex(c => c.id === docSnap.id);
-
-                        if (existingIdx >= 0) {
-                            const existingConv = window.state.conversations[existingIdx];
-                            const mergedMap = new Map();
-                            existingConv.messages.forEach(m => mergedMap.set(m.id, m));
-                            cloudMessages.forEach(m => mergedMap.set(m.id, m));
-                            const mergedMessages = Array.from(mergedMap.values()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-
-                            const addedCount = Math.max(0, mergedMessages.length - existingConv.messages.length);
-                            existingConv.messages = mergedMessages;
-                            if (friendName !== 'Friend') existingConv.title = friendName;
-                            existingConv.unreadCount = (window.state.activeConversationId === docSnap.id)
-                                ? 0
-                                : (existingConv.unreadCount + addedCount);
-                        } else {
-                            window.state.conversations.unshift({
-                                id: docSnap.id,
-                                title: friendName,
-                                unreadCount: (window.state.activeConversationId === docSnap.id) ? 0 : cloudMessages.length,
-                                messages: cloudMessages
-                            });
-                        }
-                        updated = true;
-                    }
-                });
-                if (updated) {
-                    window.saveLocalStorageData();
-                    window.renderHome();
-                    if (window.state.activeConversationId) {
-                        window.renderMessages();
-                    }
-                }
-            }, (err) => console.error(err));
-
-            // 3. Listen for Incoming Voice / Video Calls
-            const callsCol = collection(db, 'artifacts', appId, 'public', 'data', 'calls');
-            unsubCalls = onSnapshot(callsCol, (snapshot) => {
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    if (normalizeUser(data.to) === myNorm && data.status === 'ringing') {
-                        window.triggerIncomingCall(data.from, data.type, docSnap.id);
-                    }
-                });
-            }, (err) => console.error(err));
-        };
-
-        window.cloudSendFriendRequest = async function(fromUser, toUser) {
-            if (!firebaseReady || !db) return false;
-            const reqId = `req_${normalizeUser(fromUser)}_${normalizeUser(toUser)}`;
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'friend_requests', reqId), {
-                from: fromUser,
-                to: toUser,
-                status: 'pending',
-                timestamp: Date.now()
-            });
-            return true;
-        };
-
-        window.cloudRespondFriendRequest = async function(reqId, fromUser, toUser, accepted) {
-            if (!firebaseReady || !db) return;
-            const reqRef = doc(db, 'artifacts', appId, 'public', 'data', 'friend_requests', reqId);
-            if (accepted) {
-                await updateDoc(reqRef, { status: 'accepted' });
-                const chatId = getChatDocId(fromUser, toUser);
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'chats', chatId), {
-                    participants: [normalizeUser(fromUser), normalizeUser(toUser)],
-                    participantNames: [fromUser, toUser],
-                    messages: [{
-                        id: 'm_' + Date.now(),
-                        sender: toUser,
-                        text: 'Accepted your friend request! Say hello ✨',
-                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        createdAt: Date.now()
-                    }]
-                }, { merge: true });
-            } else {
-                await updateDoc(reqRef, { status: 'declined' });
-            }
-        };
-
-        window.cloudSendMessage = async function(chatId, friendName, messageObj) {
-            if (!firebaseReady || !db) return;
-            const me = window.state.currentUser?.username || 'User';
-            const resolvedChatId = chatId.startsWith('chat_') ? chatId : getChatDocId(me, friendName);
-            const chatRef = doc(db, 'artifacts', appId, 'public', 'data', 'chats', resolvedChatId);
-            await setDoc(chatRef, {
-                participants: [normalizeUser(me), normalizeUser(friendName)],
-                participantNames: [me, friendName],
-                messages: arrayUnion(messageObj)
-            }, { merge: true });
-        };
-
-        function setupPeerConnection(callId, role, isVideo) {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            peerConnection = new RTCPeerConnection(rtcConfig);
-
-            if (window.state.localStream) {
-                window.state.localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, window.state.localStream);
-                });
-            }
-
-            const remoteStream = new MediaStream();
-            peerConnection.ontrack = (event) => {
-                event.streams[0].getTracks().forEach(track => {
-                    remoteStream.addTrack(track);
-                });
-
-                if (isVideo) {
-                    const remoteVid = document.getElementById('remote-video-preview');
-                    const fallbackUi = document.getElementById('video-fallback-ui');
-                    if (remoteVid) {
-                        remoteVid.srcObject = remoteStream;
-                        remoteVid.classList.remove('hidden');
-                        remoteVid.play().catch(() => {});
-                    }
-                    if (fallbackUi) fallbackUi.classList.add('hidden');
-                } else {
-                    const remoteAudio = document.getElementById('remote-audio-player');
-                    if (remoteAudio) {
-                        remoteAudio.srcObject = remoteStream;
-                        remoteAudio.play().catch(() => {});
-                    }
-                }
-            };
-
-            const iceCol = collection(db, 'artifacts', appId, 'public', 'data', 'call_ice');
-            peerConnection.onicecandidate = async (event) => {
-                if (event.candidate) {
-                    await addDoc(iceCol, {
-                        callId: callId,
-                        senderRole: role,
-                        candidate: event.candidate.toJSON()
-                    });
-                }
-            };
-
-            if (unsubIceCandidates) unsubIceCandidates();
-            unsubIceCandidates = onSnapshot(iceCol, (snapshot) => {
-                snapshot.docChanges().forEach(async (change) => {
-                    if (change.type === 'added') {
-                        const data = change.doc.data();
-                        if (data.callId === callId && data.senderRole !== role && data.candidate && peerConnection) {
-                            try {
-                                await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
-                            } catch (e) {}
-                        }
-                    }
-                });
-            }, (err) => console.error(err));
-
-            return peerConnection;
-        }
-
-        window.cloudStartCall = async function(fromUser, toUser, callType) {
-            if (!firebaseReady || !db) return null;
-            const callId = `call_${normalizeUser(fromUser)}_${normalizeUser(toUser)}`;
-            const callDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'calls', callId);
-            const isVideo = callType === 'video';
-
-            const pc = setupPeerConnection(callId, 'caller', isVideo);
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-
-            await setDoc(callDocRef, {
-                from: fromUser,
-                to: toUser,
-                type: callType,
-                status: 'ringing',
-                offer: { type: offer.type, sdp: offer.sdp },
-                answer: null,
-                timestamp: Date.now()
-            });
-
-            if (unsubActiveCallDoc) unsubActiveCallDoc();
-            unsubActiveCallDoc = onSnapshot(callDocRef, async (docSnap) => {
-                const data = docSnap.data();
-                if (!data) return;
-
-                if (data.answer && pc && !pc.currentRemoteDescription) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                    window.onCallConnectedUI(isVideo);
-                }
-
-                if (data.status === 'declined' || data.status === 'ended') {
-                    window.cleanupLocalCallUI(data.status === 'declined' ? 'Call declined' : 'Call ended');
-                }
-            }, (err) => console.error(err));
-
-            return callId;
-        };
-
-        window.cloudAnswerCall = async function(callId, callType) {
-            if (!firebaseReady || !db || !callId) return;
-            const callDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'calls', callId);
-            const snap = await getDoc(callDocRef);
-            if (!snap.exists()) return;
-            const data = snap.data();
-            const isVideo = callType === 'video';
-
-            const pc = setupPeerConnection(callId, 'callee', isVideo);
-            if (data.offer) {
-                await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
-                const answer = await pc.createAnswer();
-                await pc.setLocalDescription(answer);
-
-                await updateDoc(callDocRef, {
-                    status: 'connected',
-                    answer: { type: answer.type, sdp: answer.sdp }
-                });
-                window.onCallConnectedUI(isVideo);
-            }
-
-            if (unsubActiveCallDoc) unsubActiveCallDoc();
-            unsubActiveCallDoc = onSnapshot(callDocRef, (docSnap) => {
-                const updated = docSnap.data();
-                if (updated && updated.status === 'ended') {
-                    window.cleanupLocalCallUI('Call ended');
-                }
-            }, (err) => console.error(err));
-        };
-
-        window.cloudUpdateCallStatus = async function(callId, status) {
-            if (!firebaseReady || !db || !callId) return;
-            try {
-                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'calls', callId), { status });
-            } catch (e) {}
-        };
-
-        window.closeWebRTCConnection = function() {
-            if (unsubActiveCallDoc) {
-                unsubActiveCallDoc();
-                unsubActiveCallDoc = null;
-            }
-            if (unsubIceCandidates) {
-                unsubIceCandidates();
-                unsubIceCandidates = null;
-            }
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-        };
-
-        initCloud();
-    </script>
 </body>
 </html>
-```
-
-### How to get your `firebaseConfig` in 3 taps on your phone:
-1. Go back to your **Mystic-Messages** project on [console.firebase.google.com](https://console.firebase.google.com).
-2. Tap **`☰`** (top left) → **Project Overview** → tap **`+ Add app`** → tap the **`</>` (Web)** icon.
-3. Type any nickname (like `mystic-web`), tap **Register app**, and **Copy** the `const firebaseConfig = { ... };` text shown on screen.
-4. Open your app, tap **Settings (`⚙️`)** in the top right, paste it into the **Firebase Cloud Config** box, and tap **Connect Firebase Cloud**! (Do the same on both phones so both connect to your Firebase project).
-```
