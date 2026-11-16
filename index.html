@@ -337,7 +337,9 @@
             localStream: null,
             peerConnection: null,
             callTimerInterval: null,
-            callSeconds: 0
+            callSeconds: 0,
+            statusUpdates: [],
+            lastCheckedRequestTime: Date.now()
         };
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -440,8 +442,9 @@
 
         function renderHome() {
             if (!state.currentUser) return;
-            document.getElementById('header-user-display.innerText') = `@${state.currentUser.username}`;
+            document.getElementById('header-user-display').innerText = `@${state.currentUser.username}`;
             renderConversationsList();
+            renderStatusList();
         }
 
         function renderConversationsList() {
@@ -490,9 +493,10 @@
             if (window.mysticCloud && window.mysticCloud.db) {
                 try {
                     const { db, doc, setDoc } = window.mysticCloud;
-                    // Use a dedicated collection path for reliable public friend requests
-                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'req_' + friendName + '_' + Date.now());
+                    const reqId = 'req_' + friendName + '_' + Date.now();
+                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', reqId);
                     await setDoc(reqRef, {
+                        id: reqId,
                         from: state.currentUser.username,
                         to: friendName,
                         timestamp: Date.now()
@@ -592,7 +596,6 @@
 
             try {
                 const { db, collection, onSnapshot } = window.mysticCloud;
-                const chatId = [state.currentUser.username, peer].sort().join('_');
                 const q = collection(db, 'artifacts', 'mystic-app', 'public', 'data');
                 state.messagesListener = onSnapshot(q, (snapshot) => {
                     snapshot.docChanges().forEach((change) => {
@@ -625,10 +628,12 @@
                         if (change.type === 'added') {
                             const data = change.doc.data();
                             if (data && data.to === state.currentUser.username && data.from && data.from !== state.currentUser.username) {
-                                state.pendingFriendRequest = data.from;
-                                document.getElementById('friend-request-title').innerText = `@${data.from}`;
-                                document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
-                                document.getElementById('modal-friend-request').classList.remove('hidden');
+                                if (data.timestamp && data.timestamp > state.lastCheckedRequestTime) {
+                                    state.pendingFriendRequest = data.from;
+                                    document.getElementById('friend-request-title').innerText = `@${data.from}`;
+                                    document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
+                                    document.getElementById('modal-friend-request').classList.remove('hidden');
+                                }
                             }
                         }
                     });
@@ -666,7 +671,7 @@
             try {
                 state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: 'user' } });
                 document.getElementById('local-video').srcObject = state.localStream;
-                document.getElementById('remote-video').srcObject = state.localStream; // Loopback preview for mobile test
+                document.getElementById('remote-video').srcObject = state.localStream;
                 showToast("Video call connected");
             } catch (e) {
                 showToast("Camera access unavailable, running audio mode");
