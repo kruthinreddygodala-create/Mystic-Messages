@@ -490,7 +490,8 @@
             if (window.mysticCloud && window.mysticCloud.db) {
                 try {
                     const { db, doc, setDoc } = window.mysticCloud;
-                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'friend_requests_' + friendName);
+                    // Use a dedicated collection path for reliable public friend requests
+                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'req_' + friendName + '_' + Date.now());
                     await setDoc(reqRef, {
                         from: state.currentUser.username,
                         to: friendName,
@@ -617,19 +618,21 @@
         function initCloudListeners() {
             if (!window.mysticCloud || !window.mysticCloud.db) return;
             try {
-                const { db, doc, onSnapshot } = window.mysticCloud;
-                const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'friend_requests_' + state.currentUser.username);
-                onSnapshot(reqRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data && data.from && data.from !== state.currentUser.username) {
-                            state.pendingFriendRequest = data.from;
-                            document.getElementById('friend-request-title').innerText = `@${data.from}`;
-                            document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
-                            document.getElementById('modal-friend-request').classList.remove('hidden');
+                const { db, collection, onSnapshot } = window.mysticCloud;
+                const q = collection(db, 'artifacts', 'mystic-app', 'public', 'data');
+                onSnapshot(q, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const data = change.doc.data();
+                            if (data && data.to === state.currentUser.username && data.from && data.from !== state.currentUser.username) {
+                                state.pendingFriendRequest = data.from;
+                                document.getElementById('friend-request-title').innerText = `@${data.from}`;
+                                document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
+                                document.getElementById('modal-friend-request').classList.remove('hidden');
+                            }
                         }
-                    }
-                });
+                    });
+                }, (err) => console.log(err));
             } catch (e) {
                 console.log("Cloud request listener error", e);
             }
