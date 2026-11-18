@@ -349,22 +349,23 @@
             runTransaction 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ============================================================================
-        // FIREBASE CONFIGURATION (Insert your live Firebase credentials below)
-        // ============================================================================
+        // Auto-detect or fallback sandbox configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyYourRealApiKeyHere",
-            authDomain: "your-project-id.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project-id.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
+  apiKey: "AIzaSyAS7K6PBINFyEN5np4ZJFHSwap9tjT7wEI",
+  authDomain: "mystic-messages-bd9c2.firebaseapp.com",
+  projectId: "mystic-messages-bd9c2",
+  storageBucket: "mystic-messages-bd9c2.firebasestorage.app",
+  messagingSenderId: "1095469500148",
+  appId: "1:1095469500148:web:54bae5e251d6730cc340a1",
+  measurementId: "G-LVP04NFP35"
+};
+
+// Initialize Firebase
 
         let app = null, db = null, auth = null, isSandboxMode = false;
 
         try {
-            if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("YourRealApiKey")) {
+            if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("sandbox_mode_active")) {
                 isSandboxMode = true;
             } else {
                 app = initializeApp(firebaseConfig);
@@ -391,7 +392,6 @@
             statusUpdates: [],
             callTimerInterval: null,
             callSeconds: 0,
-            // Sandbox mock store
             sandboxMessages: {
                 'bot_mira': [
                     { senderId: 'bot_mira', text: 'Hey! Welcome to Mystic Messages Preview! Try sending me a message below 👋', timestamp: new Date() }
@@ -439,7 +439,6 @@
                     }
                 });
             } else {
-                // Smooth preview sandbox mode so user can immediately test UI & chat flows
                 setTimeout(() => {
                     const splashEl = document.getElementById('view-splash');
                     if (splashEl) splashEl.classList.add('hidden');
@@ -1081,7 +1080,6 @@
                 });
                 renderMessageBubbles(state.sandboxMessages[state.activePeerUid]);
 
-                // Simulated peer reply in preview mode
                 const replyPeerUid = state.activePeerUid;
                 setTimeout(() => {
                     if (state.sandboxMessages[replyPeerUid]) {
@@ -1111,7 +1109,6 @@
             }
         }
 
-        // Demo Features
         function startVoiceCall() {
             const peerNameEl = document.getElementById('call-peer-name');
             const audioAvatar = document.getElementById('audio-call-avatar');
