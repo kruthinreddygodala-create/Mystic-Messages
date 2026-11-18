@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en" class="h-full dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mystic Messages — mystic.com</title>
+    <title>Mystic Messages — Secure Real-Time Cloud Messaging</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -35,45 +34,52 @@
         }
     </script>
 </head>
-<body class="h-full bg-slate-900 text-slate-900 dark:text-slate-100 font-sans flex justify-center items-center m-0 overflow-hidden">
+<body class="h-full bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex justify-center items-center m-0 overflow-hidden">
 
     <!-- Mobile Shell Container -->
-    <div id="app-shell" class="w-full max-w-md h-full sm:h-[92vh] bg-wa-lightBg dark:bg-wa-darkBg sm:rounded-2xl sm:shadow-2xl flex flex-col relative overflow-hidden select-none border border-slate-700">
+    <div id="app-shell" class="w-full max-w-md h-full sm:h-[92vh] bg-wa-lightBg dark:bg-wa-darkBg sm:rounded-2xl sm:shadow-2xl flex flex-col relative overflow-hidden select-none border border-slate-800">
 
         <!-- Toast Notification Banner -->
         <div id="toast-banner" class="pointer-events-none fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 opacity-0 -translate-y-4">
-            <div id="toast-text" class="bg-slate-900/95 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg backdrop-blur-md">
+            <div id="toast-text" class="bg-slate-900/95 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg backdrop-blur-md border border-slate-700">
                 Notification
             </div>
         </div>
 
+        <!-- Session Loading / Splash Screen -->
+        <div id="view-splash" class="absolute inset-0 bg-wa-darkBg text-white z-50 flex flex-col items-center justify-center space-y-4">
+            <div class="w-16 h-16 rounded-full bg-wa-teal/25 border border-wa-teal/50 flex items-center justify-center text-3xl animate-pulse">🌐</div>
+            <h1 class="text-xl font-bold tracking-tight">Mystic Messages</h1>
+            <p id="splash-status-text" class="text-xs text-slate-400">Verifying secure session...</p>
+        </div>
+
         <!-- Friend Request Popup Modal -->
         <div id="modal-friend-request" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 text-center">
+            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 text-center border border-slate-700">
                 <div class="w-16 h-16 mx-auto rounded-full bg-wa-teal/20 text-wa-teal flex items-center justify-center text-3xl">👋</div>
                 <h3 id="friend-request-title" class="text-base font-bold text-slate-900 dark:text-white">Friend Request</h3>
-                <p id="friend-request-subtitle" class="text-xs text-slate-500 dark:text-slate-400">wants to become your friend!</p>
+                <p id="friend-request-subtitle" class="text-xs text-slate-500 dark:text-slate-400">wants to connect</p>
                 <div class="flex gap-3 pt-2">
-                    <button onclick="respondFriendRequest(false)" class="flex-1 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm transition">Decline</button>
-                    <button onclick="respondFriendRequest(true)" class="flex-1 py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition">Accept</button>
+                    <button id="friend-decline-btn" class="flex-1 py-2.5 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-sm transition cursor-pointer">Decline</button>
+                    <button id="friend-accept-btn" class="flex-1 py-2.5 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Accept</button>
                 </div>
             </div>
         </div>
 
-        <!-- Incoming Call Modal -->
+        <!-- Incoming Call Modal (Demo) -->
         <div id="modal-incoming-call" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex flex-col items-center justify-between p-8 text-white text-center">
             <div class="pt-12 space-y-3">
                 <div class="w-24 h-24 mx-auto rounded-full bg-wa-teal/30 border-2 border-wa-teal flex items-center justify-center text-4xl animate-pulse">📞</div>
                 <h2 id="incoming-call-title" class="text-xl font-bold">Incoming Call...</h2>
-                <p id="incoming-call-subtitle" class="text-xs text-slate-400">Mystic Cloud Call</p>
+                <p class="text-xs text-slate-400">Mystic Simulated Call (Demo Feature)</p>
             </div>
             <div class="flex gap-6 pb-12">
-                <button onclick="rejectIncomingCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-2xl shadow-xl transition">✕</button>
-                <button onclick="acceptIncomingCall()" class="w-16 h-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-2xl shadow-xl transition">✓</button>
+                <button id="call-reject-btn" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">✕</button>
+                <button id="call-accept-btn" class="w-16 h-16 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">✓</button>
             </div>
         </div>
 
-        <!-- Active Call Screen -->
+        <!-- Active Call Screen (Demo) -->
         <div id="view-call" class="hidden absolute inset-0 bg-slate-950 z-50 flex flex-col justify-between p-4 text-white">
             <div class="flex justify-between items-center pt-2">
                 <span id="call-status-timer" class="text-xs font-mono bg-black/40 px-3 py-1 rounded-full">00:00</span>
@@ -87,44 +93,63 @@
                 <audio id="remote-audio" autoplay></audio>
             </div>
             <div class="flex justify-center gap-6 pb-6">
-                <button onclick="hangUpCall()" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">📞</button>
+                <button id="hangup-call-btn" class="w-16 h-16 rounded-full bg-rose-600 hover:bg-rose-700 flex items-center justify-center text-2xl shadow-xl transition cursor-pointer">📞</button>
             </div>
         </div>
 
         <!-- ============================================================== -->
-        <!-- 1. SIGN IN SCREEN (Username & Password)                        -->
+        <!-- 1. AUTH SCREEN                                                 -->
         <!-- ============================================================== -->
-        <section id="view-signin" class="flex flex-col h-full bg-wa-darkBg text-white p-6 justify-between z-30">
-            <div class="pt-8 text-center space-y-3">
-                <div class="w-20 h-20 mx-auto rounded-full bg-wa-teal/25 border border-wa-teal/50 flex items-center justify-center text-4xl shadow-xl">
+        <section id="view-signin" class="hidden flex-col h-full bg-wa-darkBg text-white p-6 justify-between z-30 overflow-y-auto">
+            <div class="pt-6 text-center space-y-2">
+                <div class="w-16 h-16 mx-auto rounded-full bg-wa-teal/25 border border-wa-teal/50 flex items-center justify-center text-3xl shadow-xl">
                     🌐
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight">mystic.com</h1>
+                <h1 class="text-2xl font-bold tracking-tight">Mystic Messages</h1>
                 <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                    Real-time cloud messaging, friend requests, voice &amp; video calls.
+                    Secure real-time cloud messaging &amp; friend requests.
                 </p>
+                <div id="demo-mode-badge" class="hidden inline-block px-3 py-1 bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-bold rounded-full">
+                    Preview Sandbox Mode (Sign in with any email/password)
+                </div>
             </div>
 
-            <div class="space-y-4 my-auto">
-                <form onsubmit="handleAuthSubmit(event)" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3.5 border border-slate-700/60">
-                    <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Username</label>
-                        <input id="auth-username" type="text" required placeholder="e.g., Aarav" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+            <div class="space-y-4 my-auto py-2">
+                <form id="auth-form" class="bg-wa-panelDark rounded-2xl p-5 shadow-2xl space-y-3 border border-slate-700/60" novalidate>
+                    <div id="field-username-container" class="space-y-1 hidden">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Username (3-20 chars, lowercase)</label>
+                        <input id="auth-username" type="text" placeholder="e.g. aarav" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
                     <div class="space-y-1">
-                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Password</label>
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Email Address</label>
+                        <input id="auth-email" type="email" required placeholder="you@example.com" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Password (min 6 chars)</label>
                         <input id="auth-password" type="password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
                     </div>
 
-                    <button type="submit" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-lg transition active:scale-[0.99] cursor-pointer">
-                        Sign In / Register
+                    <div id="field-confirm-password-container" class="space-y-1 hidden">
+                        <label class="text-xs font-bold text-wa-teal uppercase tracking-wider">Confirm Password</label>
+                        <input id="auth-confirm-password" type="password" placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-wa-teal">
+                    </div>
+
+                    <button id="auth-submit-btn" type="submit" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-lg transition active:scale-[0.99] cursor-pointer">
+                        Sign In
                     </button>
                 </form>
+
+                <div class="text-center">
+                    <button type="button" id="auth-toggle-btn" class="text-xs text-wa-teal hover:underline font-semibold cursor-pointer">
+                        Don't have an account? Create one
+                    </button>
+                </div>
             </div>
 
             <p class="text-center text-[11px] text-slate-500 pb-2">
-                mystic.com • Secure cloud sync
+                Mystic Messages • Real-Time Cloud Sync
             </p>
         </section>
 
@@ -138,12 +163,12 @@
                     <p id="header-user-display" class="text-[10px] text-wa-teal font-mono">Connected</p>
                 </div>
                 <div class="flex items-center gap-1 text-slate-600 dark:text-slate-300">
-                    <button onclick="toggleDarkMode()" aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
-                        <svg id="theme-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <button id="theme-toggle-btn" aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                     </button>
-                    <button onclick="openSettingsView()" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    <button id="settings-nav-btn" aria-label="Settings" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -157,50 +182,52 @@
                 <div id="tab-content-chats" class="divide-y divide-slate-100 dark:divide-slate-800/60"></div>
                 <!-- Status Tab -->
                 <div id="tab-content-status" class="hidden p-4 space-y-4">
-                    <div onclick="document.getElementById('gallery-file-input').click()" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
+                    <div id="status-upload-trigger" class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
                         <div class="relative w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 overflow-hidden">
                             <span id="my-status-avatar">🧙‍♂️</span>
                             <img id="my-status-thumb" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                             <div class="absolute bottom-0 right-0 w-5 h-5 bg-wa-teal text-white rounded-full flex items-center justify-center text-xs font-bold">+</div>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">My status</h3>
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white">My status (Local Demo)</h3>
                             <p class="text-xs text-slate-500">Tap to select picture from device gallery</p>
                         </div>
                     </div>
-                    <input type="file" id="gallery-file-input" accept="image/*" class="hidden" onchange="handleGalleryStatusUpload(event)">
+                    <input type="file" id="gallery-file-input" accept="image/*" class="hidden">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-1">Recent updates</p>
                     <div id="status-updates-list" class="space-y-4"></div>
                 </div>
                 <!-- Calls Tab -->
                 <div id="tab-content-calls" class="hidden p-4 space-y-4">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-2">Recent Call Logs</p>
-                    <div id="call-logs-list" class="divide-y divide-slate-100 dark:divide-slate-800"></div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider pt-2">Recent Call Logs (Demo Feature)</p>
+                    <div id="call-logs-list" class="divide-y divide-slate-100 dark:divide-slate-800">
+                        <div class="py-3 text-xs text-slate-500 text-center">No recent calls recorded</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Floating Action Button for Friend Request -->
             <div class="absolute bottom-20 right-5 z-20">
-                <button onclick="openAddFriendModal()" class="w-14 h-14 rounded-2xl bg-wa-teal hover:bg-wa-tealDark active:scale-95 text-white flex items-center justify-center shadow-lg transition cursor-pointer" title="Add Friend">
+                <button id="fab-add-friend" class="w-14 h-14 rounded-2xl bg-wa-teal hover:bg-wa-tealDark active:scale-95 text-white flex items-center justify-center shadow-lg transition cursor-pointer" title="Add Friend">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                 </button>
             </div>
 
             <!-- Bottom Navigation Bar -->
             <nav class="bg-wa-panelLight dark:bg-wa-panelDark border-t border-slate-200 dark:border-slate-800 px-2 py-2 flex items-center justify-around absolute bottom-0 left-0 right-0 z-20">
-                <button onclick="switchTab('chats')" id="tab-btn-chats" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer">
+                <button id="tab-btn-chats" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer">
                     <div id="tab-pill-chats" class="px-5 py-0.5 rounded-full bg-wa-teal/20 text-wa-teal relative flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                     </div>
                     <span class="text-[11px]">Chats</span>
                 </button>
-                <button onclick="switchTab('status')" id="tab-btn-status" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
+                <button id="tab-btn-status" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
                     <div id="tab-pill-status" class="px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="14 4"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
                     </div>
                     <span class="text-[11px]">Updates</span>
                 </button>
-                <button onclick="switchTab('calls')" id="tab-btn-calls" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
+                <button id="tab-btn-calls" class="flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer">
                     <div id="tab-pill-calls" class="px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     </div>
@@ -215,20 +242,20 @@
         <section id="view-chat" class="hidden flex-col h-full bg-wa-lightBg dark:bg-wa-darkBg relative">
             <header class="bg-wa-panelLight dark:bg-wa-panelDark px-2 py-2.5 flex items-center justify-between shadow-xs z-10">
                 <div class="flex items-center gap-1 min-w-0 flex-1">
-                    <button onclick="navigateHome()" aria-label="Back" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition shrink-0 cursor-pointer">
+                    <button id="chat-back-btn" aria-label="Back" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition shrink-0 cursor-pointer">
                         <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     </button>
                     <div id="chat-header-avatar" class="w-9 h-9 rounded-full bg-slate-300 dark:bg-slate-700 flex items-center justify-center text-lg shrink-0">👤</div>
                     <div class="min-w-0 flex-1 ml-1">
                         <h2 id="chat-header-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">Chat</h2>
-                        <p id="chat-header-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Online</p>
+                        <p id="chat-header-subtitle" class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Cloud Live</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-0.5 text-slate-700 dark:text-slate-200 shrink-0">
-                    <button onclick="startVideoCall()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Video Call">
+                    <button id="video-call-btn" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Video Call (Demo)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                     </button>
-                    <button onclick="startVoiceCall()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Voice Call">
+                    <button id="voice-call-btn" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer" title="Voice Call (Demo)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                     </button>
                 </div>
@@ -236,22 +263,22 @@
 
             <div id="chat-messages" class="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
-            <div class="p-2 bg-wa-panelLight dark:bg-wa-panelDark flex items-end gap-2 z-10">
+            <form id="message-form" class="p-2 bg-wa-panelLight dark:bg-wa-panelDark flex items-end gap-2 z-10">
                 <div class="flex-1 bg-white dark:bg-slate-900 rounded-3xl px-3 py-1.5 flex items-center gap-2 border border-slate-200 dark:border-slate-700 shadow-xs">
-                    <input id="message-input" type="text" onkeydown="handleChatKeydown(event)" placeholder="Type a message..." class="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5">
+                    <input id="message-input" type="text" maxlength="1000" placeholder="Type a secure message..." class="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none py-1.5">
                 </div>
-                <button type="button" onclick="sendChatMessage()" class="w-11 h-11 rounded-full bg-wa-teal hover:bg-wa-tealDark text-white flex items-center justify-center shadow-md shrink-0 transition active:scale-95 cursor-pointer">
+                <button type="submit" id="send-message-btn" class="w-11 h-11 rounded-full bg-wa-teal hover:bg-wa-tealDark text-white flex items-center justify-center shadow-md shrink-0 transition active:scale-95 cursor-pointer">
                     <svg class="w-5 h-5 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
                 </button>
-            </div>
+            </form>
         </section>
 
         <!-- ============================================================== -->
-        <!-- 4. SETTINGS SCREEN (Replacing Sign Out)                        -->
+        <!-- 4. SETTINGS SCREEN                                             -->
         <!-- ============================================================== -->
         <section id="view-settings" class="hidden flex-col h-full bg-white dark:bg-wa-darkBg">
             <header class="bg-wa-panelLight dark:bg-wa-panelDark px-2 py-3 flex items-center gap-2 shadow-xs">
-                <button onclick="navigateHome()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                <button id="settings-back-btn" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                     <svg class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <h2 class="text-base font-bold text-slate-900 dark:text-white">Settings</h2>
@@ -262,16 +289,16 @@
                     <div id="settings-avatar-preview" class="w-20 h-20 rounded-full bg-wa-teal/25 text-white flex items-center justify-center text-4xl shadow-lg border border-wa-teal/50">🧙‍♂️</div>
                     <div class="text-center">
                         <h3 id="settings-username-display" class="font-bold text-base text-slate-900 dark:text-white">User</h3>
-                        <p class="text-xs text-wa-teal">Online on mystic.com</p>
+                        <p id="settings-email-display" class="text-xs text-wa-teal">user@example.com</p>
                     </div>
                 </div>
 
                 <div class="space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                    <button onclick="openAddFriendModal()" class="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold text-sm flex items-center justify-between transition cursor-pointer">
+                    <button id="settings-add-friend-btn" class="w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold text-sm flex items-center justify-between transition cursor-pointer">
                         <span>Send Friend Request</span>
                         <span>➕</span>
                     </button>
-                    <button onclick="signOutUser()" class="w-full py-3.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-sm transition cursor-pointer">
+                    <button id="signout-btn" class="w-full py-3.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-sm transition cursor-pointer">
                         Sign Out
                     </button>
                 </div>
@@ -280,73 +307,185 @@
 
         <!-- Add Friend Modal -->
         <div id="modal-add-friend" class="hidden fixed inset-0 bg-black/70 backdrop-blur-xs z-40 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4">
+            <div class="bg-white dark:bg-wa-panelDark w-full max-w-sm rounded-2xl p-5 shadow-2xl space-y-4 border border-slate-700">
                 <div class="flex items-center justify-between">
                     <h3 class="text-base font-bold text-slate-900 dark:text-white">Add Friend by Username</h3>
-                    <button onclick="closeAddFriendModal()" class="p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">✕</button>
+                    <button id="close-add-friend-btn" class="p-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 cursor-pointer">✕</button>
                 </div>
-                <div class="space-y-2">
-                    <input id="friend-username-input" type="text" placeholder="Enter friend's username..." class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none">
-                    <button onclick="sendFriendRequest()" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Send Request</button>
-                </div>
+                <form id="add-friend-form" class="space-y-2">
+                    <input id="friend-username-input" type="text" required placeholder="Enter exact username..." class="w-full px-3.5 py-2.5 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none">
+                    <button type="submit" id="submit-add-friend-btn" class="w-full py-3 rounded-xl bg-wa-teal hover:bg-wa-tealDark text-white font-bold text-sm shadow-md transition cursor-pointer">Send Request</button>
+                </form>
             </div>
         </div>
 
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDK & Unified Application Module -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            getDoc, 
+            getDocs,
+            collection, 
+            query, 
+            where, 
+            addDoc,
+            updateDoc,
+            orderBy,
+            onSnapshot,
+            serverTimestamp,
+            runTransaction 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'mystic-messages-app';
-                    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyAS7K6PBINFyEN5np4ZJFHSwap9tjT7wEI",
-            authDomain: "mystic-messages-bd9c2.firebaseapp.com",
-            projectId: "mystic-messages-bd9c2",
-            storageBucket: "mystic-messages-bd9c2.firebasestorage.app",
-            messagingSenderId: "1095469500148",
-            appId: "1:1095469500148:web:54bae5e251d6730cc340a1",
-            measurementId: "G-LVP04NFP35"
-
+        // ============================================================================
+        // FIREBASE CONFIGURATION (Insert your live Firebase credentials below)
+        // ============================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyYourRealApiKeyHere",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abcdef"
         };
 
-        let app, db, auth;
+        let app = null, db = null, auth = null, isSandboxMode = false;
+
         try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+            if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes("YourRealApiKey")) {
+                isSandboxMode = true;
+            } else {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+            }
         } catch (e) {
-            console.log("Firebase mock mode:", e);
+            console.warn("Firebase initialization fell back to Preview Sandbox Mode:", e);
+            isSandboxMode = true;
         }
 
-        window.mysticCloud = { app, db, auth, appId, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, query };
-    </script>
-
-    <!-- App Logic -->
-    <script>
+        // Global State
         const state = {
             currentUser: null,
             currentTab: 'chats',
             activePeer: null,
+            activePeerUid: null,
             darkMode: true,
-            conversations: {},
-            messagesListener: null,
-            pendingFriendRequest: null,
-            incomingCallData: null,
-            activeCallPeer: null,
-            localStream: null,
-            peerConnection: null,
+            friends: [],
+            friendRequestsUnsub: null,
+            messagesUnsubA: null,
+            messagesUnsubB: null,
+            isRegisterMode: false,
+            statusUpdates: [],
             callTimerInterval: null,
             callSeconds: 0,
-            statusUpdates: [],
-            lastCheckedRequestTime: Date.now()
+            // Sandbox mock store
+            sandboxMessages: {
+                'bot_mira': [
+                    { senderId: 'bot_mira', text: 'Hey! Welcome to Mystic Messages Preview! Try sending me a message below 👋', timestamp: new Date() }
+                ]
+            }
         };
 
         window.addEventListener('DOMContentLoaded', () => {
             applyTheme();
+            bindEventListeners();
+
+            if (!isSandboxMode && auth) {
+                onAuthStateChanged(auth, async (firebaseUser) => {
+                    const splashEl = document.getElementById('view-splash');
+                    if (firebaseUser) {
+                        try {
+                            const docSnap = await getDoc(doc(db, "users", firebaseUser.uid));
+                            if (docSnap.exists()) {
+                                const profile = docSnap.data();
+                                state.currentUser = {
+                                    uid: firebaseUser.uid,
+                                    email: firebaseUser.email,
+                                    username: profile.username,
+                                    avatar: profile.avatar || '🧙‍♂️'
+                                };
+                                if (splashEl) splashEl.classList.add('hidden');
+                                switchView('view-home');
+                                renderHome();
+                                initRealtimeListeners(firebaseUser.uid);
+                            } else {
+                                await signOut(auth);
+                                if (splashEl) splashEl.classList.add('hidden');
+                                showToast("User profile missing in Firestore. Please sign in again.");
+                            }
+                        } catch (err) {
+                            console.error("Profile load error:", err);
+                            if (splashEl) splashEl.classList.add('hidden');
+                            showToast("Failed to load user profile due to network or rules error.");
+                        }
+                    } else {
+                        cleanupListeners();
+                        state.currentUser = null;
+                        if (splashEl) splashEl.classList.add('hidden');
+                        switchView('view-signin');
+                    }
+                });
+            } else {
+                // Smooth preview sandbox mode so user can immediately test UI & chat flows
+                setTimeout(() => {
+                    const splashEl = document.getElementById('view-splash');
+                    if (splashEl) splashEl.classList.add('hidden');
+                    const badge = document.getElementById('demo-mode-badge');
+                    if (badge) badge.classList.remove('hidden');
+                    switchView('view-signin');
+                }, 400);
+            }
         });
+
+        function bindEventListeners() {
+            document.getElementById('auth-toggle-btn')?.addEventListener('click', toggleAuthMode);
+            document.getElementById('auth-form')?.addEventListener('submit', handleAuthSubmit);
+
+            document.getElementById('tab-btn-chats')?.addEventListener('click', () => switchTab('chats'));
+            document.getElementById('tab-btn-status')?.addEventListener('click', () => switchTab('status'));
+            document.getElementById('tab-btn-calls')?.addEventListener('click', () => switchTab('calls'));
+
+            document.getElementById('theme-toggle-btn')?.addEventListener('click', toggleDarkMode);
+            document.getElementById('settings-nav-btn')?.addEventListener('click', openSettingsView);
+            document.getElementById('fab-add-friend')?.addEventListener('click', openAddFriendModal);
+
+            document.getElementById('chat-back-btn')?.addEventListener('click', navigateHome);
+            document.getElementById('video-call-btn')?.addEventListener('click', startVideoCall);
+            document.getElementById('voice-call-btn')?.addEventListener('click', startVoiceCall);
+            document.getElementById('message-form')?.addEventListener('submit', sendChatMessage);
+
+            document.getElementById('settings-back-btn')?.addEventListener('click', navigateHome);
+            document.getElementById('settings-add-friend-btn')?.addEventListener('click', openAddFriendModal);
+            document.getElementById('signout-btn')?.addEventListener('click', signOutUser);
+
+            document.getElementById('close-add-friend-btn')?.addEventListener('click', closeAddFriendModal);
+            document.getElementById('add-friend-form')?.addEventListener('submit', submitFriendRequest);
+
+            document.getElementById('call-reject-btn')?.addEventListener('click', () => closeModal('modal-incoming-call'));
+            document.getElementById('call-accept-btn')?.addEventListener('click', () => {
+                closeModal('modal-incoming-call');
+                startVideoCall();
+            });
+            document.getElementById('hangup-call-btn')?.addEventListener('click', hangUpCall);
+
+            document.getElementById('status-upload-trigger')?.addEventListener('click', () => {
+                document.getElementById('gallery-file-input')?.click();
+            });
+            document.getElementById('gallery-file-input')?.addEventListener('change', handleGalleryStatusUpload);
+        }
 
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
@@ -358,45 +497,161 @@
             else document.documentElement.classList.remove('dark');
         }
 
-        async function handleAuthSubmit(e) {
-            e.preventDefault();
-            const username = document.getElementById('auth-username').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            if (!username || !password) return;
+        function toggleAuthMode() {
+            state.isRegisterMode = !state.isRegisterMode;
+            const userContainer = document.getElementById('field-username-container');
+            const confirmContainer = document.getElementById('field-confirm-password-container');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const toggleBtn = document.getElementById('auth-toggle-btn');
 
-            state.currentUser = {
-                username: username,
-                password: password,
-                avatar: '🧙‍♂️'
-            };
-
-            if (window.mysticCloud && window.mysticCloud.auth) {
-                try {
-                    await signInAnonymously(window.mysticCloud.auth);
-                } catch (err) {
-                    console.log("Auth fallback");
-                }
+            if (state.isRegisterMode) {
+                userContainer?.classList.remove('hidden');
+                confirmContainer?.classList.remove('hidden');
+                if (submitBtn) submitBtn.innerText = 'Create Account';
+                if (toggleBtn) toggleBtn.innerText = 'Already have an account? Sign In';
+            } else {
+                userContainer?.classList.add('hidden');
+                confirmContainer?.classList.add('hidden');
+                if (submitBtn) submitBtn.innerText = 'Sign In';
+                if (toggleBtn) toggleBtn.innerText = "Don't have an account? Create one";
             }
-
-            localStorage.setItem('mystic_current_user', JSON.stringify(state.currentUser));
-
-            showToast(`Welcome, ${username}!`);
-            switchView('view-home');
-            initCloudListeners();
-            renderHome();
         }
 
-        function signOutUser() {
-            state.currentUser = null;
-            state.activePeer = null;
-            if (state.messagesListener) state.messagesListener();
-            localStorage.removeItem('mystic_current_user');
-            switchView('view-signin');
-            showToast('Signed out');
+        async function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email')?.value.trim() || '';
+            const password = document.getElementById('auth-password')?.value || '';
+            const username = document.getElementById('auth-username')?.value.trim().toLowerCase() || '';
+            const confirmPassword = document.getElementById('auth-confirm-password')?.value || '';
+
+            if (!email || !password) {
+                showToast("Please provide both email and password.");
+                return;
+            }
+
+            if (isSandboxMode) {
+                const derivedUsername = username || email.split('@')[0].replace(/[^a-z0-9_]/g, '').toLowerCase() || 'tester';
+                state.currentUser = {
+                    uid: 'sandbox_' + Date.now(),
+                    email: email,
+                    username: derivedUsername,
+                    avatar: '🧙‍♂️'
+                };
+                state.friends = [
+                    { uid: 'bot_mira', username: 'mira_mystic', photoURL: '' }
+                ];
+                showToast(`Signed in to Preview Mode as @${derivedUsername}!`);
+                switchView('view-home');
+                renderHome();
+                return;
+            }
+
+            try {
+                if (state.isRegisterMode) {
+                    if (!username || username.length < 3 || username.length > 20) {
+                        showToast("Username must be between 3 and 20 characters.");
+                        return;
+                    }
+                    if (!/^[a-z0-9_]+$/.test(username)) {
+                        showToast("Username can only contain lowercase letters, numbers, and underscores.");
+                        return;
+                    }
+                    if (password.length < 6) {
+                        showToast("Password must be at least 6 characters long.");
+                        return;
+                    }
+                    if (password !== confirmPassword) {
+                        showToast("Passwords do not match.");
+                        return;
+                    }
+
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    await updateProfile(user, { displayName: username });
+
+                    try {
+                        await runTransaction(db, async (transaction) => {
+                            const usernameRef = doc(db, "usernames", username);
+                            const usernameDoc = await transaction.get(usernameRef);
+                            if (usernameDoc.exists()) {
+                                throw new Error("Username is already taken.");
+                            }
+
+                            transaction.set(usernameRef, {
+                                uid: user.uid,
+                                username: username,
+                                createdAt: serverTimestamp()
+                            });
+
+                            const userRef = doc(db, "users", user.uid);
+                            transaction.set(userRef, {
+                                uid: user.uid,
+                                username: username,
+                                email: email,
+                                createdAt: serverTimestamp()
+                            });
+
+                            const publicRef = doc(db, "publicProfiles", user.uid);
+                            transaction.set(publicRef, {
+                                uid: user.uid,
+                                username: username,
+                                photoURL: ""
+                            });
+                        });
+                        showToast("Account created successfully!");
+                    } catch (txErr) {
+                        console.error("Firestore transaction profile creation failed:", txErr);
+                        showToast(`Auth created, but profile failed: ${txErr.message}`);
+                    }
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showToast("Signed in successfully!");
+                }
+            } catch (err) {
+                console.error(err);
+                let msg = err.message || "Authentication failed.";
+                if (err.code === 'auth/email-already-in-use') msg = "Email is already registered.";
+                if (err.code === 'auth/invalid-credential') msg = "Incorrect email or password.";
+                if (err.code === 'auth/invalid-email') msg = "Invalid email format.";
+                showToast(msg);
+            }
+        }
+
+        async function signOutUser() {
+            if (isSandboxMode) {
+                state.currentUser = null;
+                switchView('view-signin');
+                showToast("Signed out");
+                return;
+            }
+            if (auth) {
+                try {
+                    await signOut(auth);
+                    showToast("Signed out securely");
+                } catch (e) {
+                    console.error("Sign out error:", e);
+                    showToast("Failed to sign out properly.");
+                }
+            }
+        }
+
+        function cleanupListeners() {
+            if (state.friendRequestsUnsub) {
+                state.friendRequestsUnsub();
+                state.friendRequestsUnsub = null;
+            }
+            if (state.messagesUnsubA) {
+                state.messagesUnsubA();
+                state.messagesUnsubA = null;
+            }
+            if (state.messagesUnsubB) {
+                state.messagesUnsubB();
+                state.messagesUnsubB = null;
+            }
         }
 
         function switchView(viewId) {
-            ['view-signin', 'view-home', 'view-chat', 'view-settings', 'view-call'].forEach(id => {
+            ['view-splash', 'view-signin', 'view-home', 'view-chat', 'view-settings', 'view-call'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
                     if (id === viewId) {
@@ -411,14 +666,30 @@
         }
 
         function navigateHome() {
+            cleanupMessageListeners();
             switchView('view-home');
             state.activePeer = null;
-            if (state.messagesListener) state.messagesListener();
+            state.activePeerUid = null;
             renderHome();
         }
 
+        function cleanupMessageListeners() {
+            if (state.messagesUnsubA) {
+                state.messagesUnsubA();
+                state.messagesUnsubA = null;
+            }
+            if (state.messagesUnsubB) {
+                state.messagesUnsubB();
+                state.messagesUnsubB = null;
+            }
+        }
+
         function openSettingsView() {
-            document.getElementById('settings-username-display').innerText = state.currentUser ? state.currentUser.username : 'User';
+            if (!state.currentUser) return;
+            const unameDisp = document.getElementById('settings-username-display');
+            const emailDisp = document.getElementById('settings-email-display');
+            if (unameDisp) unameDisp.textContent = `@${state.currentUser.username}`;
+            if (emailDisp) emailDisp.textContent = state.currentUser.email;
             switchView('view-settings');
         }
 
@@ -430,13 +701,13 @@
                 const pillEl = document.getElementById(`tab-pill-${t}`);
 
                 if (t === tabName) {
-                    contentEl.classList.remove('hidden');
-                    btnEl.className = 'flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer';
-                    pillEl.className = 'px-5 py-0.5 rounded-full bg-wa-teal/20 text-wa-teal relative flex items-center justify-center transition';
+                    contentEl?.classList.remove('hidden');
+                    if (btnEl) btnEl.className = 'flex-1 py-1 flex flex-col items-center gap-0.5 text-wa-teal font-bold transition cursor-pointer';
+                    if (pillEl) pillEl.className = 'px-5 py-0.5 rounded-full bg-wa-teal/20 text-wa-teal relative flex items-center justify-center transition';
                 } else {
-                    contentEl.classList.add('hidden');
-                    btnEl.className = 'flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer';
-                    pillEl.className = 'px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition';
+                    contentEl?.classList.add('hidden');
+                    if (btnEl) btnEl.className = 'flex-1 py-1 flex flex-col items-center gap-0.5 text-slate-500 font-medium transition cursor-pointer';
+                    if (pillEl) pillEl.className = 'px-5 py-0.5 rounded-full bg-transparent flex items-center justify-center transition';
                 }
             });
             renderHome();
@@ -444,251 +715,439 @@
 
         function renderHome() {
             if (!state.currentUser) return;
-            document.getElementById('header-user-display').innerText = `@${state.currentUser.username}`;
+            const headerDisplay = document.getElementById('header-user-display');
+            if (headerDisplay) headerDisplay.textContent = `@${state.currentUser.username}`;
             renderConversationsList();
             renderStatusList();
         }
 
+        function initRealtimeListeners(uid) {
+            cleanupListeners();
+
+            const reqQuery = query(collection(db, "friendRequests"), where("recipientId", "==", uid), where("status", "==", "pending"));
+            state.friendRequestsUnsub = onSnapshot(reqQuery, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const data = change.doc.data();
+                        showFriendRequestModal(change.doc.id, data.senderUsername);
+                    }
+                });
+            }, (error) => {
+                console.error("Friend request listener error:", error);
+            });
+
+            loadFriendsList();
+        }
+
+        function showFriendRequestModal(requestId, senderUsername) {
+            const titleEl = document.getElementById('friend-request-title');
+            const subEl = document.getElementById('friend-request-subtitle');
+            const modal = document.getElementById('modal-friend-request');
+            if (titleEl) titleEl.textContent = "Friend Request";
+            if (subEl) subEl.textContent = `@${senderUsername} wants to connect with you`;
+            modal?.classList.remove('hidden');
+
+            const acceptBtn = document.getElementById('friend-accept-btn');
+            const declineBtn = document.getElementById('friend-decline-btn');
+
+            if (acceptBtn && declineBtn) {
+                const newAccept = acceptBtn.cloneNode(true);
+                const newDecline = declineBtn.cloneNode(true);
+                acceptBtn.parentNode.replaceChild(newAccept, acceptBtn);
+                declineBtn.parentNode.replaceChild(newDecline, declineBtn);
+
+                newAccept.addEventListener('click', async () => {
+                    closeModal('modal-friend-request');
+                    try {
+                        await updateDoc(doc(db, "friendRequests", requestId), { 
+                            status: "accepted",
+                            respondedAt: serverTimestamp()
+                        });
+                        showToast(`You are now friends with @${senderUsername}!`);
+                        loadFriendsList();
+                    } catch (e) {
+                        console.error(e);
+                        showToast("Failed to accept friend request.");
+                    }
+                });
+
+                newDecline.addEventListener('click', async () => {
+                    closeModal('modal-friend-request');
+                    try {
+                        await updateDoc(doc(db, "friendRequests", requestId), { 
+                            status: "declined",
+                            respondedAt: serverTimestamp()
+                        });
+                        showToast("Friend request declined.");
+                    } catch (e) {
+                        console.error(e);
+                        showToast("Failed to decline friend request.");
+                    }
+                });
+            }
+        }
+
+        async function loadFriendsList() {
+            if (!state.currentUser || isSandboxMode) return;
+            try {
+                const q1 = query(collection(db, "friendRequests"), where("senderId", "==", state.currentUser.uid), where("status", "==", "accepted"));
+                const q2 = query(collection(db, "friendRequests"), where("recipientId", "==", state.currentUser.uid), where("status", "==", "accepted"));
+                
+                const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+                const friendUids = new Set();
+
+                snap1.forEach(d => {
+                    const data = d.data();
+                    if (data.recipientId) friendUids.add(data.recipientId);
+                });
+                snap2.forEach(d => {
+                    const data = d.data();
+                    if (data.senderId) friendUids.add(data.senderId);
+                });
+
+                state.friends = [];
+                for (const fUid of friendUids) {
+                    try {
+                        const userDoc = await getDoc(doc(db, "publicProfiles", fUid));
+                        if (userDoc.exists()) {
+                            state.friends.push(userDoc.data());
+                        }
+                    } catch (err) {
+                        console.warn("Could not load public profile for friend:", fUid);
+                    }
+                }
+                renderConversationsList();
+            } catch (e) {
+                console.error("Error loading friends list:", e);
+            }
+        }
+
         function renderConversationsList() {
             const container = document.getElementById('tab-content-chats');
-            const peers = Object.keys(state.conversations);
-            if (peers.length === 0) {
+            if (!container) return;
+            
+            if (state.friends.length === 0) {
                 container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">No active chats yet. Tap + to send a friend request!</div>`;
                 return;
             }
-            container.innerHTML = peers.map(peer => {
-                const msgs = state.conversations[peer] || [];
-                const lastMsg = msgs[msgs.length - 1] || { text: 'New connection', time: '' };
-                return `
-                    <div onclick="openChatWith('${peer}')" class="flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition">
-                        <div class="w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30">👤</div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${peer}</h3>
-                                <span class="text-[11px] text-slate-500">${lastMsg.time || ''}</span>
-                            </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">${lastMsg.text}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            container.innerHTML = '';
+            state.friends.forEach(friend => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-3.5 px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer transition';
+                item.addEventListener('click', () => openChatWith(friend));
+
+                const avatar = document.createElement('div');
+                avatar.className = 'w-12 h-12 rounded-full bg-wa-teal/25 flex items-center justify-center text-2xl shrink-0 border border-wa-teal/30';
+                avatar.textContent = '👤';
+
+                const info = document.createElement('div');
+                info.className = 'flex-1 min-w-0';
+
+                const topRow = document.createElement('div');
+                topRow.className = 'flex items-center justify-between';
+
+                const nameEl = document.createElement('h3');
+                nameEl.className = 'text-sm font-bold text-slate-900 dark:text-white truncate';
+                nameEl.textContent = friend.username;
+
+                topRow.appendChild(nameEl);
+
+                const msgEl = document.createElement('p');
+                msgEl.className = 'text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5';
+                msgEl.textContent = "Tap to chat securely";
+
+                info.appendChild(topRow);
+                info.appendChild(msgEl);
+                item.appendChild(avatar);
+                item.appendChild(info);
+                container.appendChild(item);
+            });
         }
 
         function openAddFriendModal() {
-            document.getElementById('modal-add-friend').classList.remove('hidden');
-            document.getElementById('friend-username-input').focus();
+            const modal = document.getElementById('modal-add-friend');
+            const input = document.getElementById('friend-username-input');
+            modal?.classList.remove('hidden');
+            if (input) {
+                input.value = '';
+                input.focus();
+            }
         }
 
         function closeAddFriendModal() {
-            document.getElementById('modal-add-friend').classList.add('hidden');
+            document.getElementById('modal-add-friend')?.classList.add('hidden');
         }
 
-        async function sendFriendRequest() {
-            const friendName = document.getElementById('friend-username-input').value.trim();
-            if (!friendName || !state.currentUser) return;
-            if (friendName === state.currentUser.username) {
+        function closeModal(modalId) {
+            document.getElementById(modalId)?.classList.add('hidden');
+        }
+
+        async function submitFriendRequest(e) {
+            e.preventDefault();
+            const input = document.getElementById('friend-username-input');
+            const targetUsername = input ? input.value.trim().toLowerCase() : '';
+            if (!targetUsername || !state.currentUser) return;
+            
+            if (targetUsername === state.currentUser.username) {
                 showToast("You cannot add yourself!");
                 return;
             }
-            closeAddFriendModal();
 
-            if (window.mysticCloud && window.mysticCloud.db) {
-                try {
-                    const { db, doc, setDoc } = window.mysticCloud;
-                    const reqId = 'req_' + friendName + '_' + Date.now();
-                    const reqRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', reqId);
-                    await setDoc(reqRef, {
-                        id: reqId,
-                        from: state.currentUser.username,
-                        to: friendName,
-                        timestamp: Date.now()
-                    });
-                    showToast(`Friend request sent to @${friendName}!`);
-                } catch (e) {
-                    showToast(`Friend request sent to @${friendName}`);
+            if (isSandboxMode) {
+                closeAddFriendModal();
+                const mockId = 'sandbox_peer_' + targetUsername;
+                if (!state.friends.some(f => f.username === targetUsername)) {
+                    state.friends.push({ uid: mockId, username: targetUsername, photoURL: '' });
+                    state.sandboxMessages[mockId] = [
+                        { senderId: mockId, text: `Hi @${state.currentUser.username}! Accepted your friend request in preview mode!`, timestamp: new Date() }
+                    ];
                 }
-            } else {
-                showToast(`Friend request sent to @${friendName}`);
+                renderConversationsList();
+                showToast(`Friend @${targetUsername} added in Preview Mode!`);
+                return;
             }
-        }
 
-        function respondFriendRequest(accept) {
-            document.getElementById('modal-friend-request').classList.add('hidden');
-            if (accept && state.pendingFriendRequest) {
-                const friend = state.pendingFriendRequest;
-                if (!state.conversations[friend]) state.conversations[friend] = [];
-                state.conversations[friend].push({
-                    sender: friend,
-                    text: 'We are now connected! Say hello 👋',
-                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            try {
+                const usernameSnap = await getDoc(doc(db, "usernames", targetUsername));
+                if (!usernameSnap.exists()) {
+                    showToast(`User @${targetUsername} not found.`);
+                    return;
+                }
+                const targetUid = usernameSnap.data().uid;
+
+                closeAddFriendModal();
+
+                const existingQ1 = query(collection(db, "friendRequests"), where("senderId", "==", state.currentUser.uid), where("recipientId", "==", targetUid));
+                const existingQ2 = query(collection(db, "friendRequests"), where("senderId", "==", targetUid), where("recipientId", "==", state.currentUser.uid));
+                const [s1, s2] = await Promise.all([getDocs(existingQ1), getDocs(existingQ2)]);
+
+                if (!s1.empty || !s2.empty) {
+                    showToast("A friend request already exists with this user.");
+                    return;
+                }
+
+                await addDoc(collection(db, "friendRequests"), {
+                    senderId: state.currentUser.uid,
+                    senderUsername: state.currentUser.username,
+                    recipientId: targetUid,
+                    status: "pending",
+                    createdAt: serverTimestamp()
                 });
-                renderHome();
-                openChatWith(friend);
-                showToast(`You are now friends with @${friend}!`);
+                showToast(`Friend request sent to @${targetUsername}!`);
+            } catch (err) {
+                console.error(err);
+                showToast("Failed to send friend request. Check permissions.");
             }
-            state.pendingFriendRequest = null;
         }
 
-        function openChatWith(peer) {
-            state.activePeer = peer;
-            document.getElementById('chat-header-title').innerText = peer;
-            document.getElementById('chat-header-subtitle').innerText = 'Online';
+        function openChatWith(friend) {
+            state.activePeer = friend.username;
+            state.activePeerUid = friend.uid;
+            const titleEl = document.getElementById('chat-header-title');
+            const subEl = document.getElementById('chat-header-subtitle');
+            if (titleEl) titleEl.textContent = friend.username;
+            if (subEl) subEl.textContent = isSandboxMode ? 'Preview Sandbox Live' : 'Cloud Firestore Live';
             switchView('view-chat');
-            renderMessages();
-            listenToMessages(peer);
+            initMessagesListener(friend.uid);
         }
 
-        function renderMessages() {
+        function renderMessageBubbles(allMsgs) {
             const container = document.getElementById('chat-messages');
-            const msgs = state.conversations[state.activePeer] || [];
-            container.innerHTML = msgs.map(m => {
-                const isMe = m.sender === state.currentUser.username;
-                const bubble = isMe 
-                    ? 'bg-wa-bubbleOutLight dark:bg-wa-bubbleOutDark text-slate-900 dark:text-white self-end rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl ml-12' 
-                    : 'bg-wa-bubbleInLight dark:bg-wa-bubbleInDark text-slate-900 dark:text-white self-start rounded-tl-sm rounded-tr-xl rounded-bl-xl rounded-br-xl mr-12';
-                return `
-                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1">
-                        <div class="max-w-[80%] px-3 py-2 shadow-xs ${bubble}">
-                            <p class="text-sm leading-relaxed">${m.text}</p>
-                            <div class="text-[10px] text-slate-400 text-right mt-1 select-none">${m.time || ''}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (allMsgs.length === 0) {
+                container.innerHTML = `<div class="text-xs text-center text-slate-400 py-4">No messages yet. Say hello!</div>`;
+                return;
+            }
+
+            allMsgs.forEach(m => {
+                const isMe = m.senderId === state.currentUser.uid;
+                const wrapper = document.createElement('div');
+                wrapper.className = `flex flex-col ${isMe ? 'items-end' : 'items-start'} my-1`;
+
+                const bubble = document.createElement('div');
+                const bubbleColor = isMe 
+                    ? 'bg-wa-bubbleOutLight dark:bg-wa-bubbleOutDark text-slate-900 dark:text-white rounded-tl-xl rounded-tr-sm rounded-bl-xl rounded-br-xl ml-12' 
+                    : 'bg-wa-bubbleInLight dark:bg-wa-bubbleInDark text-slate-900 dark:text-white rounded-tl-sm rounded-tr-xl rounded-bl-xl rounded-br-xl mr-12';
+                bubble.className = `max-w-[80%] px-3 py-2 shadow-xs ${bubbleColor}`;
+
+                const textEl = document.createElement('p');
+                textEl.className = 'text-sm leading-relaxed break-words';
+                textEl.textContent = m.text;
+
+                const timeEl = document.createElement('div');
+                timeEl.className = 'text-[10px] text-slate-400 text-right mt-1 select-none';
+                let timeVal = 'Just now';
+                if (m.timestamp) {
+                    const d = typeof m.timestamp.toDate === 'function' ? m.timestamp.toDate() : new Date(m.timestamp);
+                    timeVal = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }
+                timeEl.textContent = timeVal;
+
+                bubble.appendChild(textEl);
+                bubble.appendChild(timeEl);
+                wrapper.appendChild(bubble);
+                container.appendChild(wrapper);
+            });
             container.scrollTop = container.scrollHeight;
         }
 
-        function handleChatKeydown(e) {
-            if (e.key === 'Enter') sendChatMessage();
-        }
+        function initMessagesListener(peerUid) {
+            cleanupMessageListeners();
 
-        async function sendChatMessage() {
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            if (!text || !state.activePeer || !state.currentUser) return;
+            if (isSandboxMode) {
+                const msgs = state.sandboxMessages[peerUid] || [];
+                renderMessageBubbles(msgs);
+                return;
+            }
 
-            const msg = {
-                sender: state.currentUser.username,
-                text: text,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: Date.now()
+            const container = document.getElementById('chat-messages');
+            if (container) container.innerHTML = '<div class="text-xs text-center text-slate-400 py-4">Loading secure messages...</div>';
+
+            const qA = query(
+                collection(db, "messages"),
+                where("senderId", "==", state.currentUser.uid),
+                where("recipientId", "==", peerUid),
+                orderBy("timestamp", "asc")
+            );
+
+            const qB = query(
+                collection(db, "messages"),
+                where("senderId", "==", peerUid),
+                where("recipientId", "==", state.currentUser.uid),
+                orderBy("timestamp", "asc")
+            );
+
+            let messagesMap = new Map();
+
+            const updateAndRenderMessages = () => {
+                const allMsgs = Array.from(messagesMap.values()).sort((a, b) => {
+                    const tA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const tB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return tA - tB;
+                });
+                renderMessageBubbles(allMsgs);
             };
 
-            if (!state.conversations[state.activePeer]) state.conversations[state.activePeer] = [];
-            state.conversations[state.activePeer].push(msg);
-            input.value = '';
-            renderMessages();
-            renderHome();
+            state.messagesUnsubA = onSnapshot(qA, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" || change.type === "modified") {
+                        messagesMap.set(change.doc.id, change.doc.data());
+                    } else if (change.type === "removed") {
+                        messagesMap.delete(change.doc.id);
+                    }
+                });
+                updateAndRenderMessages();
+            }, (error) => {
+                console.error("Messages listener A error:", error);
+            });
 
-            if (window.mysticCloud && window.mysticCloud.db) {
-                try {
-                    const { db, doc, setDoc } = window.mysticCloud;
-                    const chatId = [state.currentUser.username, state.activePeer].sort().join('_');
-                    const msgRef = doc(db, 'artifacts', 'mystic-app', 'public', 'data', 'chat_' + chatId + '_' + Date.now());
-                    await setDoc(msgRef, msg);
-                } catch (e) {
-                    console.log("Cloud message send sync error");
+            state.messagesUnsubB = onSnapshot(qB, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" || change.type === "modified") {
+                        messagesMap.set(change.doc.id, change.doc.data());
+                    } else if (change.type === "removed") {
+                        messagesMap.delete(change.doc.id);
+                    }
+                });
+                updateAndRenderMessages();
+            }, (error) => {
+                console.error("Messages listener B error:", error);
+            });
+        }
+
+        async function sendChatMessage(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('message-input');
+            const text = input ? input.value.trim() : '';
+            if (!text || !state.activePeerUid || !state.currentUser) return;
+            
+            if (text.length > 1000) {
+                showToast("Message exceeds 1000 character limit.");
+                return;
+            }
+
+            if (input) input.value = '';
+
+            if (isSandboxMode) {
+                if (!state.sandboxMessages[state.activePeerUid]) {
+                    state.sandboxMessages[state.activePeerUid] = [];
                 }
-            }
-        }
+                state.sandboxMessages[state.activePeerUid].push({
+                    senderId: state.currentUser.uid,
+                    text: text,
+                    timestamp: new Date()
+                });
+                renderMessageBubbles(state.sandboxMessages[state.activePeerUid]);
 
-        function listenToMessages(peer) {
-            if (state.messagesListener) state.messagesListener();
-            if (!window.mysticCloud || !window.mysticCloud.db) return;
+                // Simulated peer reply in preview mode
+                const replyPeerUid = state.activePeerUid;
+                setTimeout(() => {
+                    if (state.sandboxMessages[replyPeerUid]) {
+                        state.sandboxMessages[replyPeerUid].push({
+                            senderId: replyPeerUid,
+                            text: `Echo from ${state.activePeer}: "${text}"`,
+                            timestamp: new Date()
+                        });
+                        if (state.activePeerUid === replyPeerUid) {
+                            renderMessageBubbles(state.sandboxMessages[replyPeerUid]);
+                        }
+                    }
+                }, 800);
+                return;
+            }
 
             try {
-                const { db, collection, onSnapshot } = window.mysticCloud;
-                const q = collection(db, 'artifacts', 'mystic-app', 'public', 'data');
-                state.messagesListener = onSnapshot(q, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') {
-                            const data = change.doc.data();
-                            if (data.sender && data.text && data.timestamp && (data.sender === peer)) {
-                                if (!state.conversations[peer]) state.conversations[peer] = [];
-                                const exists = state.conversations[peer].some(m => m.timestamp === data.timestamp);
-                                if (!exists) {
-                                    state.conversations[peer].push(data);
-                                    if (state.activePeer === peer) renderMessages();
-                                    renderHome();
-                                }
-                            }
-                        }
-                    });
-                }, (err) => console.log(err));
+                await addDoc(collection(db, "messages"), {
+                    senderId: state.currentUser.uid,
+                    recipientId: state.activePeerUid,
+                    text: text,
+                    timestamp: serverTimestamp()
+                });
             } catch (e) {
-                console.log("Listener error", e);
+                console.error("Error sending message:", e);
+                showToast("Failed to send message. Check permissions.");
             }
         }
 
-        function initCloudListeners() {
-            if (!window.mysticCloud || !window.mysticCloud.db) return;
-            try {
-                const { db, collection, onSnapshot } = window.mysticCloud;
-                const q = collection(db, 'artifacts', 'mystic-app', 'public', 'data');
-                onSnapshot(q, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') {
-                            const data = change.doc.data();
-                            if (data && data.to === state.currentUser.username && data.from && data.from !== state.currentUser.username) {
-                                if (data.timestamp && data.timestamp > state.lastCheckedRequestTime) {
-                                    state.pendingFriendRequest = data.from;
-                                    document.getElementById('friend-request-title').innerText = `@${data.from}`;
-                                    document.getElementById('friend-request-subtitle').innerText = `wants to become your friend!`;
-                                    document.getElementById('modal-friend-request').classList.remove('hidden');
-                                }
-                            }
-                        }
-                    });
-                }, (err) => console.log(err));
-            } catch (e) {
-                console.log("Cloud request listener error", e);
-            }
-        }
+        // Demo Features
+        function startVoiceCall() {
+            const peerNameEl = document.getElementById('call-peer-name');
+            const audioAvatar = document.getElementById('audio-call-avatar');
+            const localVid = document.getElementById('local-video');
+            const remoteVid = document.getElementById('remote-video');
 
-        async function startVoiceCall() {
-            state.activeCallPeer = state.activePeer;
-            document.getElementById('call-peer-name').innerText = state.activePeer;
-            document.getElementById('audio-call-avatar').classList.remove('hidden');
-            document.getElementById('local-video').classList.add('hidden');
-            document.getElementById('remote-video').classList.add('hidden');
+            if (peerNameEl) peerNameEl.textContent = state.activePeer || 'Peer';
+            audioAvatar?.classList.remove('hidden');
+            localVid?.classList.add('hidden');
+            remoteVid?.classList.add('hidden');
             switchView('view-call');
             startCallTimer();
-            try {
-                state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                document.getElementById('remote-audio').srcObject = state.localStream;
-                showToast("Voice call started");
-            } catch (e) {
-                showToast("Microphone connected");
-            }
+            showToast("Voice call simulation active (Demo Feature)");
         }
 
         async function startVideoCall() {
-            state.activeCallPeer = state.activePeer;
-            document.getElementById('call-peer-name').innerText = state.activePeer;
-            document.getElementById('audio-call-avatar').classList.add('hidden');
-            document.getElementById('local-video').classList.remove('hidden');
-            document.getElementById('remote-video').classList.remove('hidden');
+            const peerNameEl = document.getElementById('call-peer-name');
+            const audioAvatar = document.getElementById('audio-call-avatar');
+            const localVid = document.getElementById('local-video');
+            const remoteVid = document.getElementById('remote-video');
+
+            if (peerNameEl) peerNameEl.textContent = state.activePeer || 'Peer';
+            audioAvatar?.classList.add('hidden');
+            localVid?.classList.remove('hidden');
+            remoteVid?.classList.remove('hidden');
             switchView('view-call');
             startCallTimer();
             try {
-                state.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: { facingMode: 'user' } });
-                document.getElementById('local-video').srcObject = state.localStream;
-                document.getElementById('remote-video').srcObject = state.localStream;
-                showToast("Video call connected");
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                if (localVid) localVid.srcObject = stream;
+                state.localStream = stream;
+                showToast("Video stream connected (Demo Feature)");
             } catch (e) {
-                showToast("Camera access unavailable, running audio mode");
+                showToast("Camera access unavailable, audio demo active");
                 startVoiceCall();
             }
-        }
-
-        function acceptIncomingCall() {
-            document.getElementById('modal-incoming-call').classList.add('hidden');
-            startVideoCall();
-        }
-
-        function rejectIncomingCall() {
-            document.getElementById('modal-incoming-call').classList.add('hidden');
-            state.incomingCallData = null;
         }
 
         function hangUpCall() {
@@ -698,8 +1157,13 @@
             }
             clearInterval(state.callTimerInterval);
             state.callSeconds = 0;
-            document.getElementById('call-status-timer').innerText = "00:00";
-            navigateHome();
+            const timerEl = document.getElementById('call-status-timer');
+            if (timerEl) timerEl.textContent = "00:00";
+            if (state.activePeerUid) {
+                switchView('view-chat');
+            } else {
+                navigateHome();
+            }
             showToast("Call ended");
         }
 
@@ -710,30 +1174,38 @@
                 state.callSeconds++;
                 const mins = String(Math.floor(state.callSeconds / 60)).padStart(2, '0');
                 const secs = String(state.callSeconds % 60).padStart(2, '0');
-                document.getElementById('call-status-timer').innerText = `${mins}:${secs}`;
+                const timerEl = document.getElementById('call-status-timer');
+                if (timerEl) timerEl.textContent = `${mins}:${secs}`;
             }, 1000);
         }
 
         function handleGalleryStatusUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("Status image must be under 2MB.");
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64Img = e.target.result;
-                document.getElementById('my-status-avatar').classList.add('hidden');
+                document.getElementById('my-status-avatar')?.classList.add('hidden');
+                
                 const thumb = document.getElementById('my-status-thumb');
-                thumb.src = base64Img;
-                thumb.classList.remove('hidden');
+                if (thumb) {
+                    thumb.src = base64Img;
+                    thumb.classList.remove('hidden');
+                }
 
                 state.statusUpdates.unshift({
                     id: 's_' + Date.now(),
-                    name: state.currentUser.username,
+                    name: state.currentUser ? state.currentUser.username : 'User',
                     avatar: '🧙‍♂️',
                     time: 'Just now',
                     imageUrl: base64Img,
-                    caption: 'My gallery status update ✨'
+                    caption: 'Local device status update (Demo)'
                 });
-                showToast("Status updated from gallery!");
+                showToast("Status updated locally!");
                 renderStatusList();
             };
             reader.readAsDataURL(file);
@@ -742,24 +1214,47 @@
         function renderStatusList() {
             const container = document.getElementById('status-updates-list');
             if (!container) return;
-            if (!state.statusUpdates) state.statusUpdates = [];
-            container.innerHTML = state.statusUpdates.map(s => `
-                <div class="flex items-center gap-3.5 cursor-pointer p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition">
-                    <div class="w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2 border-wa-teal p-0.5 shrink-0 overflow-hidden bg-slate-800">
-                        <img src="${s.imageUrl}" class="w-full h-full object-cover rounded-full">
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white truncate">${s.name}</h3>
-                        <p class="text-xs text-slate-500 truncate">${s.time} • ${s.caption}</p>
-                    </div>
-                </div>
-            `).join('');
+            container.innerHTML = '';
+            if (state.statusUpdates.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-400">No recent status updates from contacts</div>`;
+                return;
+            }
+            state.statusUpdates.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-3.5 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 transition';
+
+                const imgWrap = document.createElement('div');
+                imgWrap.className = 'w-14 h-14 rounded-full flex items-center justify-center border-2 border-wa-teal p-0.5 shrink-0 overflow-hidden bg-slate-800';
+
+                const img = document.createElement('img');
+                img.src = s.imageUrl;
+                img.className = 'w-full h-full object-cover rounded-full';
+                imgWrap.appendChild(img);
+
+                const info = document.createElement('div');
+                info.className = 'flex-1 min-w-0';
+
+                const nameEl = document.createElement('h3');
+                nameEl.className = 'text-sm font-bold text-slate-900 dark:text-white truncate';
+                nameEl.textContent = s.name;
+
+                const descEl = document.createElement('p');
+                descEl.className = 'text-xs text-slate-500 truncate';
+                descEl.textContent = `${s.time} • ${s.caption}`;
+
+                info.appendChild(nameEl);
+                info.appendChild(descEl);
+                item.appendChild(imgWrap);
+                item.appendChild(info);
+                container.appendChild(item);
+            });
         }
 
         function showToast(text) {
             const banner = document.getElementById('toast-banner');
             const txt = document.getElementById('toast-text');
-            txt.innerText = text;
+            if (!banner || !txt) return;
+            txt.textContent = text;
             banner.classList.remove('opacity-0', '-translate-y-4');
             banner.classList.add('opacity-100', 'translate-y-0');
             setTimeout(() => {
